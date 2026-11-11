@@ -35,7 +35,7 @@ export default function Hero() {
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#161619] border border-[#C9A24A]/30 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-[#C9A24A] animate-ping" />
               <span className="text-xs font-semibold tracking-wide text-neutral-200">
-                Independent Apple Specialist · Connaught Place, New Delhi
+                Independent Apple Specialist · Ranjit Avenue, Amritsar
               </span>
             </div>
 
@@ -45,12 +45,12 @@ export default function Hero() {
               <span className="text-gradient-gold block sm:inline">
                 Unrivalled Craft.
               </span>{' '}
-              Curated in Delhi.
+              Curated in Amritsar.
             </h1>
 
             {/* Subheading */}
             <p className="text-base sm:text-xl text-neutral-400 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Delhi NCR’s premier independent destination for Brand New sealed packs, pristine unboxed units, and 40-point certified pre-owned Apple devices. Backed by verified serial diagnostics, GST tax invoice, and genuine store warranty.
+              Amritsar and Punjab’s premier independent destination for Brand New sealed packs, pristine unboxed units, and 40-point certified pre-owned Apple devices. Backed by verified serial diagnostics, GST tax invoice, and genuine store warranty.
             </p>
 
             {/* Two Main CTAs */}
@@ -86,7 +86,7 @@ export default function Hero() {
               </div>
               <div>
                 <p className="text-xl sm:text-2xl font-bold text-white tracking-tight">Same-Day</p>
-                <p className="text-xs text-neutral-400 mt-0.5">Delhi NCR Courier</p>
+                <p className="text-xs text-neutral-400 mt-0.5">Amritsar & Punjab Courier</p>
               </div>
             </div>
           </div>

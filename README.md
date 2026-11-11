@@ -1,6 +1,6 @@
 # Vishal Apple Store — Premium Independent Apple Specialist
 
-A polished, demo-ready e-commerce storefront and store-owner management platform built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**. Designed with luxury Apple-inspired minimalism (deep blacks, refined typography, hairline borders, and warm gold `#C9A24A` accents) specifically for an Indian retail context (Connaught Place, New Delhi).
+A polished, demo-ready e-commerce storefront and store-owner management platform built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**. Designed with luxury Apple-inspired minimalism (deep blacks, refined typography, hairline borders, and warm gold `#C9A24A` accents) specifically for an Indian retail context (Ranjit Avenue, Amritsar, Punjab).
 
 ---
 
@@ -52,8 +52,8 @@ export interface StoreConfig {
   address: {
     shopNo: string;             // "Shop No. 14, Ground Floor"
     building: string;           // "Regal Building"
-    area: string;               // "Connaught Place"
-    city: string;               // "New Delhi"
+    area: string;               // "B-Block, Ranjit Avenue"
+    city: string;               // "Amritsar"
     pincode: string;            // "110001"
     landmark: string;           // "Opposite Regal Cinema Exit, Outer Circle"
     fullFormatted: string;

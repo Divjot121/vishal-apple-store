@@ -51,7 +51,7 @@ export default function AdminDashboard({ onNavigateTab }: AdminDashboardProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-[#18181D] via-[#141417] to-[#18181D] border border-white/[0.08]">
         <div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#C9A24A]">
-            Connaught Place Flagship
+            Ranjit Avenue, Amritsar Flagship
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
             Store Operations Overview
@@ -183,7 +183,7 @@ export default function AdminDashboard({ onNavigateTab }: AdminDashboardProps) {
             {recentEnquiries.map((enq) => {
               const waReplyLink = buildWhatsAppLink(
                 enq.phone,
-                `Hi ${enq.customerName}, thank you for contacting Vishal Apple Store regarding ${enq.productName || 'your device inquiry'}. We have checked our Connaught Place store inventory and...`
+                `Hi ${enq.customerName}, thank you for contacting Vishal Apple Store regarding ${enq.productName || 'your device inquiry'}. We have checked our Amritsar store inventory and...`
               );
 
               return (

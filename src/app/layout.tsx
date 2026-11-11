@@ -24,20 +24,20 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://vishalapplestore.com'),
   title: {
-    default: 'Vishal Apple Store | Premium Apple Specialist in Connaught Place, New Delhi',
+    default: 'Vishal Apple Store | Premium Apple Specialist in Ranjit Avenue, Amritsar',
     template: '%s | Vishal Apple Store',
   },
   description:
-    'New, Unboxed & Certified Pre-Owned Apple devices in Delhi NCR. 40-point verified diagnostics, genuine GST tax invoice, transparent battery grading, and store warranty support.',
+    'New, Unboxed & Certified Pre-Owned Apple devices in Amritsar & Punjab. 40-point verified diagnostics, genuine GST tax invoice, transparent battery grading, and store warranty support.',
   keywords: [
-    'Apple Store Delhi',
-    'iPhone 16 Pro Connaught Place',
-    'Pre-owned iPhone Delhi',
-    'Unboxed MacBook Pro M3',
-    'AirPods Pro 2 Delhi',
-    'Apple Watch Ultra Delhi',
-    'Vishal Apple Store',
-    'Genuine Apple Devices Delhi NCR',
+    'Apple Store Amritsar',
+    'iPhone 16 Pro Amritsar',
+    'Pre-owned iPhone Amritsar',
+    'Unboxed MacBook Pro Amritsar',
+    'AirPods Pro 2 Amritsar',
+    'Apple Watch Ultra Amritsar',
+    'Vishal Apple Store Ranjit Avenue',
+    'Genuine Apple Devices Punjab',
   ],
   authors: [{ name: 'Vishal Apple Store' }],
   openGraph: {
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://vishalapplestore.com',
     siteName: 'Vishal Apple Store',
-    title: 'Vishal Apple Store | Curated Apple Devices in Delhi NCR',
+    title: 'Vishal Apple Store | Curated Apple Devices in Amritsar, Punjab',
     description:
       'Experience genuine New, Unboxed & Certified Pre-Owned Apple devices with transparent 40-point diagnostics, store warranty, and instant WhatsApp inquiry.',
     images: [
@@ -59,9 +59,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Vishal Apple Store | Premium Apple Devices',
+    title: 'Vishal Apple Store | Premium Apple Devices Amritsar',
     description:
-      'Curated Apple devices with transparent grading and verified store warranty. Connaught Place, New Delhi.',
+      'Curated Apple devices with transparent grading and verified store warranty. Ranjit Avenue, Amritsar.',
     images: ['/brand/horizontal.jpeg'],
   },
   robots: {
@@ -93,8 +93,8 @@ export default function RootLayout({
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 28.630026,
-      longitude: 77.215571,
+      latitude: 31.64785,
+      longitude: 74.858056,
     },
     openingHoursSpecification: [
       {

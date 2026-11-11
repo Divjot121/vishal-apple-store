@@ -99,7 +99,7 @@ export default function EmiTradeInTools() {
             Transparent EMI & Trade-In
           </h2>
           <p className="text-sm text-neutral-400 mt-2">
-            Calculate your monthly ownership installments or estimate your existing device credit before stepping into our Connaught Place store.
+            Calculate your monthly ownership installments or estimate your existing device credit before stepping into our Ranjit Avenue, Amritsar store.
           </p>
 
           {/* Toggle Switch */}

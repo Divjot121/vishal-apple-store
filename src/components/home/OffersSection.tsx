@@ -36,7 +36,7 @@ export default function OffersSection() {
               Live Store Offers & Bank Schemes
             </h2>
             <p className="text-sm text-neutral-400 mt-2 max-w-lg">
-              Managed live by store management. Redeemable in-store at Connaught Place or for Delhi NCR doorstep dispatch.
+              Managed live by store management. Redeemable in-store at Ranjit Avenue or for Amritsar & Punjab doorstep dispatch.
             </p>
           </div>
 

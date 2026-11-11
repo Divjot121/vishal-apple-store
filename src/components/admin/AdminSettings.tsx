@@ -73,7 +73,7 @@ export default function AdminSettings() {
           building,
           area,
           city,
-          state: 'Delhi',
+          state: 'Punjab',
           pincode,
           landmark,
           fullFormatted: `${shopNo}, ${building}, ${area}, ${city} - ${pincode}`,
@@ -115,7 +115,7 @@ export default function AdminSettings() {
             Store Contact & Address Details
           </h2>
           <p className="text-xs text-neutral-400 mt-1">
-            Update store contact numbers, Connaught Place shop address, operating hours, and social handles without editing source code.
+            Update store contact numbers, Ranjit Avenue Amritsar shop address, operating hours, and social handles without editing source code.
           </p>
         </div>
       </div>

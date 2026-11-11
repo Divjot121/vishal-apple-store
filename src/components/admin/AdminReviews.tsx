@@ -22,7 +22,7 @@ export default function AdminReviews() {
 
   // Form state
   const [author, setAuthor] = useState('');
-  const [city, setCity] = useState('New Delhi');
+  const [city, setCity] = useState('Amritsar');
   const [rating, setRating] = useState(5);
   const [productPurchased, setProductPurchased] = useState('iPhone 16 Pro');
   const [comment, setComment] = useState('');
@@ -214,7 +214,7 @@ export default function AdminReviews() {
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="e.g. Vasant Kunj, New Delhi"
+                    placeholder="e.g. Ranjit Avenue, Amritsar"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-white/10 text-white text-xs focus:border-[#C9A24A] focus:outline-none"
                   />
                 </div>

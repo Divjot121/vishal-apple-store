@@ -49,7 +49,7 @@ export default function TrustSection() {
         phone,
         type: 'repair_request',
         productName: deviceModel,
-        message: `Repair/Service Request: ${issue} (${serviceMode === 'store_visit' ? 'In-Store Inspection' : 'Delhi NCR Doorstep Pickup'})`,
+        message: `Repair/Service Request: ${issue} (${serviceMode === 'store_visit' ? 'In-Store Inspection' : 'Amritsar & Punjab Doorstep Pickup'})`,
         status: 'New',
         details: { deviceModel, issue, serviceMode },
       });
@@ -121,7 +121,7 @@ export default function TrustSection() {
               </div>
               <h3 className="text-base font-bold text-white mb-2">Free Data Migration</h3>
               <p className="text-xs text-neutral-400 leading-relaxed">
-                Sit back at our Connaught Place store while our technicians seamlessly transfer WhatsApp chats, photos, and system files from your old Android or iPhone.
+                Sit back at our Ranjit Avenue store while our technicians seamlessly transfer WhatsApp chats, photos, and system files from your old Android or iPhone.
               </p>
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function TrustSection() {
                             : 'bg-neutral-900 text-neutral-400 border-white/10'
                         }`}
                       >
-                        NCR Pickup
+                        Amritsar / PB Pickup
                       </button>
                     </div>
                   </div>

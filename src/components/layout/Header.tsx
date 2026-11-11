@@ -30,11 +30,11 @@ export default function Header() {
       {/* Top micro-announcement banner */}
       <div className="bg-[#121214] text-xs py-1.5 px-4 text-center text-neutral-400 border-b border-white/[0.04] flex items-center justify-center gap-2">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#C9A24A] animate-pulse" />
-        <span className="font-medium text-neutral-300">Same-Day Delhi NCR Delivery</span>
+        <span className="font-medium text-neutral-300">Same-Day Amritsar & Punjab Delivery</span>
         <span className="text-neutral-600">|</span>
         <span className="hidden sm:inline">Transparent 40-Point Diagnostics</span>
         <span className="text-neutral-600 hidden sm:inline">|</span>
-        <span className="text-[#C9A24A]">Shop No. 14, Connaught Place</span>
+        <span className="text-[#C9A24A]">Shop No. 14, Ranjit Avenue</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

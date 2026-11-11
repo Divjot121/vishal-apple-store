@@ -34,7 +34,7 @@ export default function VisitSection() {
 
   const whatsappHref = buildWhatsAppLink(
     settings.whatsappRaw,
-    'Hi Vishal Apple Store, please share your exact store location and parking directions for Connaught Place.'
+    'Hi Vishal Apple Store, please share your exact store location and parking directions for Ranjit Avenue, Amritsar.'
   );
 
   return (
@@ -44,7 +44,7 @@ export default function VisitSection() {
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#161619] border border-[#C9A24A]/30 mb-2">
             <MapPin className="w-3.5 h-3.5 text-[#C9A24A]" />
             <span className="text-xs font-semibold text-neutral-200">
-              Connaught Place, New Delhi
+              Ranjit Avenue, Amritsar
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
@@ -120,13 +120,13 @@ export default function VisitSection() {
               <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
                 <div className="p-3 rounded-xl bg-neutral-900/60 border border-white/[0.04]">
                   <Train className="w-4 h-4 text-[#C9A24A] mb-1.5" />
-                  <p className="font-semibold text-white">Metro Access</p>
-                  <p className="text-[11px] text-neutral-400">2 Mins from Rajiv Chowk (Gate 2)</p>
+                  <p className="font-semibold text-white">Prime Location</p>
+                  <p className="text-[11px] text-neutral-400">Near Custom Chowk & Mall Road</p>
                 </div>
                 <div className="p-3 rounded-xl bg-neutral-900/60 border border-white/[0.04]">
                   <Car className="w-4 h-4 text-[#C9A24A] mb-1.5" />
                   <p className="font-semibold text-white">Dedicated Parking</p>
-                  <p className="text-[11px] text-neutral-400">Outer Circle Regal parking lot</p>
+                  <p className="text-[11px] text-neutral-400">Ample complex parking available</p>
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function VisitSection() {
               allowFullScreen={false}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Vishal Apple Store Connaught Place Location"
+              title="Vishal Apple Store Ranjit Avenue Amritsar Location"
               className="flex-1 w-full"
             />
 
@@ -182,7 +182,7 @@ export default function VisitSection() {
             <div className="absolute bottom-4 left-4 right-4 bg-[#0E0E12]/95 backdrop-blur-md border border-white/10 p-3 sm:p-4 rounded-2xl flex items-center justify-between shadow-2xl">
               <div>
                 <p className="text-xs font-bold text-white">Vishal Apple Store</p>
-                <p className="text-[11px] text-neutral-400">Shop No. 14, Regal Building, CP, New Delhi</p>
+                <p className="text-[11px] text-neutral-400">Shop No. 14, Ranjit Avenue, Amritsar, Punjab</p>
               </div>
 
               <a

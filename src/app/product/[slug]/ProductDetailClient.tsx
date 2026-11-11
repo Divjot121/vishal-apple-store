@@ -497,7 +497,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                   <span className="font-mono font-bold text-[#C9A24A]">
                     {reservationSuccess}
                   </span>
-                  . We will hold this {product.name} ({currentVariant?.storage}) at our Connaught Place store until {visitDate || 'tomorrow'}.
+                  . We will hold this {product.name} ({currentVariant?.storage}) at our Ranjit Avenue, Amritsar store until {visitDate || 'tomorrow'}.
                 </p>
                 <button
                   type="button"

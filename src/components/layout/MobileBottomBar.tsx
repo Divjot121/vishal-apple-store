@@ -114,7 +114,7 @@ export default function MobileBottomBar() {
                 Quick Device Enquiry
               </h2>
               <p className="text-xs text-neutral-400 mt-1">
-                Drop your details and our Connaught Place store specialist will WhatsApp or call you within 15 minutes.
+                Drop your details and our Amritsar store specialist will WhatsApp or call you within 15 minutes.
               </p>
             </div>
 

@@ -26,7 +26,7 @@ export async function generateMetadata({
     title: `${product.name} (${product.condition}) | Vishal Apple Store`,
     description: `${product.name} in ${product.condition} condition. ${product.tagline} Tested with 40-point diagnostic check and store warranty.`,
     openGraph: {
-      title: `${product.name} | Vishal Apple Store Delhi`,
+      title: `${product.name} | Vishal Apple Store Amritsar`,
       description: product.description,
       images: [
         {

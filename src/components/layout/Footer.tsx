@@ -157,7 +157,7 @@ export default function Footer() {
           {/* Col 5: Visit Us */}
           <div className="space-y-4">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-200">
-              Connaught Place Store
+              Amritsar Store
             </h3>
             <div className="space-y-3 text-xs text-neutral-400">
               <div className="flex items-start gap-2.5">
@@ -184,7 +184,7 @@ export default function Footer() {
             <div className="space-y-1">
               <p className="font-medium text-neutral-300">Independent Retailer Notice & Trademark Disclaimer</p>
               <p className="leading-relaxed">
-                {settings.brand.disclaimer} All product names, logos, brands, and registered trademarks belong exclusively to Apple Inc. Vishal Apple Store is an independent retail and service entity providing inspected devices, store warranties, and retail assistance in New Delhi. GST registered: {settings.brand.gstNumber}.
+                {settings.brand.disclaimer} All product names, logos, brands, and registered trademarks belong exclusively to Apple Inc. Vishal Apple Store is an independent retail and service entity providing inspected devices, store warranties, and retail assistance in Amritsar, Punjab. GST registered: {settings.brand.gstNumber}.
               </p>
             </div>
           </div>
