@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="100%" height="100%">
+  <defs>
+    <linearGradient id="s10Case" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a2a2e"/>
+      <stop offset="100%" stop-color="#0e0e10"/>
+    </linearGradient>
+    <filter id="s10Shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000000" flood-opacity="0.65"/>
+    </filter>
+  </defs>
+
+  <circle cx="300" cy="375" r="220" fill="#c9a24a" fill-opacity="0.08" filter="blur(35px)"/>
+
+  <!-- Midnight Sport Band Top -->
+  <path d="M 235 50 L 365 50 L 350 220 L 250 220 Z" fill="#161618" stroke="#222226" stroke-width="1.5"/>
+  <!-- Band Bottom -->
+  <path d="M 250 530 L 350 530 L 365 700 L 235 700 Z" fill="#161618" stroke="#222226" stroke-width="1.5"/>
+
+  <!-- Watch Casing -->
+  <g filter="url(#s10Shadow)">
+    <rect x="185" y="220" width="230" height="310" rx="65" fill="url(#s10Case)" stroke="#44444a" stroke-width="2"/>
+    <!-- Digital Crown -->
+    <rect x="415" y="275" width="18" height="55" rx="5" fill="#202024" stroke="#55555c" stroke-width="1.5"/>
+    <!-- Side button -->
+    <rect x="415" y="360" width="12" height="40" rx="3" fill="#18181a"/>
+
+    <!-- Edge-to-edge Wide-Angle OLED Screen -->
+    <rect x="195" y="230" width="210" height="290" rx="55" fill="#020203" stroke="#18181c" stroke-width="1.5"/>
+
+    <!-- Minimalist Watch Face -->
+    <text x="300" y="365" font-family="-apple-system, sans-serif" font-size="52" font-weight="200" fill="#ffffff" text-anchor="middle">10:09</text>
+    <text x="300" y="405" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#c9a24a" letter-spacing="3" text-anchor="middle">SERIES 10</text>
+    <circle cx="300" cy="445" r="14" fill="none" stroke="#fa2d48" stroke-width="3"/>
+    <circle cx="300" cy="445" r="10" fill="none" stroke="#a4f434" stroke-width="3"/>
+    <circle cx="300" cy="445" r="6" fill="none" stroke="#00d7fb" stroke-width="3"/>
+  </g>
+</svg>
