@@ -63,14 +63,12 @@ export default function VisitSection() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      openNow ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'
-                    }`}
+                    className={`w-2.5 h-2.5 rounded-full ${openNow ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'
+                      }`}
                   />
                   <span
-                    className={`text-xs font-bold uppercase tracking-wider ${
-                      openNow ? 'text-emerald-400' : 'text-neutral-400'
-                    }`}
+                    className={`text-xs font-bold uppercase tracking-wider ${openNow ? 'text-emerald-400' : 'text-neutral-400'
+                      }`}
                   >
                     {openNow ? 'Store Open Now · Closes 9:00 PM' : 'Store Closed · Opens 10:30 AM'}
                   </span>

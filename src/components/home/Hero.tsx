@@ -97,7 +97,7 @@ export default function Hero() {
             <div className="relative w-full max-w-[380px] sm:max-w-[460px] aspect-[4/5] flex items-center justify-center">
               {/* Outer decorative ring */}
               <div className="absolute inset-4 rounded-[48px] border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
-              
+
               {/* Device illustration */}
               <div className="relative w-[85%] h-[90%] transform hover:scale-[1.02] transition-transform duration-500">
                 <Image

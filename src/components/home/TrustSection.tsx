@@ -294,22 +294,20 @@ export default function TrustSection() {
                       <button
                         type="button"
                         onClick={() => setServiceMode('store_visit')}
-                        className={`py-2 px-3 rounded-xl text-xs font-semibold border ${
-                          serviceMode === 'store_visit'
-                            ? 'bg-white text-black border-white'
-                            : 'bg-neutral-900 text-neutral-400 border-white/10'
-                        }`}
+                        className={`py-2 px-3 rounded-xl text-xs font-semibold border ${serviceMode === 'store_visit'
+                          ? 'bg-white text-black border-white'
+                          : 'bg-neutral-900 text-neutral-400 border-white/10'
+                          }`}
                       >
                         Store Walk-in
                       </button>
                       <button
                         type="button"
                         onClick={() => setServiceMode('pickup')}
-                        className={`py-2 px-3 rounded-xl text-xs font-semibold border ${
-                          serviceMode === 'pickup'
-                            ? 'bg-[#C9A24A] text-black border-[#C9A24A]'
-                            : 'bg-neutral-900 text-neutral-400 border-white/10'
-                        }`}
+                        className={`py-2 px-3 rounded-xl text-xs font-semibold border ${serviceMode === 'pickup'
+                          ? 'bg-[#C9A24A] text-black border-[#C9A24A]'
+                          : 'bg-neutral-900 text-neutral-400 border-white/10'
+                          }`}
                       >
                         Amritsar / PB Pickup
                       </button>
