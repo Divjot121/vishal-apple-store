@@ -108,7 +108,7 @@ export default function CompareDrawer() {
                         <div>
                           <div className="relative w-full h-32 mb-3 bg-[#0D0D10] rounded-lg p-2 flex items-center justify-center">
                             <Image
-                              src={product.images[0] || '/devices/iphone-16-pro.svg'}
+                              src={product.images[0] || '/devices/iphone-16-pro-natural.png'}
                               alt={product.name}
                               width={120}
                               height={120}

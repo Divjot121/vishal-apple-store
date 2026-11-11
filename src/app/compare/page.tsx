@@ -100,7 +100,7 @@ export default function ComparePage() {
                       <div>
                         <div className="relative w-full h-36 mb-4 bg-black/40 rounded-xl p-3 flex items-center justify-center">
                           <Image
-                            src={product.images[0] || '/devices/iphone-16-pro.svg'}
+                            src={product.images[0] || '/devices/iphone-16-pro-natural.png'}
                             alt={product.name}
                             fill
                             sizes="180px"

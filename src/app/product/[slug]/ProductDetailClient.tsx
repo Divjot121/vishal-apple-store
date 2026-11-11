@@ -189,6 +189,31 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               </div>
             </div>
 
+            {/* Multi-angle & Color Gallery Strip */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex items-center gap-3 overflow-x-auto py-1">
+                {product.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`relative w-20 h-20 rounded-2xl p-2 border transition-all flex-shrink-0 ${
+                      activeImageIndex === idx
+                        ? 'border-[#C9A24A] bg-[#1a1a20] shadow-md scale-105 ring-1 ring-[#C9A24A]'
+                        : 'border-white/10 bg-[#121215] hover:border-white/20'
+                    }`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${product.name} angle ${idx + 1}`}
+                      fill
+                      className="object-contain p-1"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Condition & Diagnostic Inspection Report Accordion */}
             {product.gradingReport && (
               <div className="rounded-2xl bg-[#141418] border border-white/[0.08] p-5 sm:p-6 space-y-4">

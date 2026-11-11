@@ -12,7 +12,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPhone 16 Pro Max',
     tagline: 'Titanium precision. Extended battery architecture.',
     description: 'The pinnacle of mobile performance featuring Grade 5 titanium, an ultra-advanced 48MP triple-lens fusion system with 5x optical telephoto, and studio-grade audio capture.',
-    images: ['/devices/iphone-16-pro.svg'],
+    images: ['/devices/iphone-16-pro-natural.png', '/devices/iphone-16-pro-black.png', '/devices/iphone-16-pro-desert.png', '/devices/iphone-16-pro-white.png'],
     variants: [
       { id: 'v-16pm-256-nat', storage: '256GB', colour: 'Natural Titanium', colorHex: '#9E9A93', price: 144900, mrp: 144900, stock: 4, sku: 'VAS-IP16PM-256-NT' },
       { id: 'v-16pm-512-nat', storage: '512GB', colour: 'Natural Titanium', colorHex: '#9E9A93', price: 164900, mrp: 164900, stock: 2, sku: 'VAS-IP16PM-512-NT' },
@@ -53,7 +53,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPhone 16 Pro',
     tagline: 'Pro form factor. Zero cosmetic imperfections.',
     description: 'Open-box certified unit inspected through our 40-point hardware suite. Zero scratches, 100% battery cycle health, full manufacturer warranty valid through October 2027.',
-    images: ['/devices/iphone-16-pro.svg'],
+    images: ['/devices/iphone-16-pro-white.png', '/devices/iphone-16-pro-natural.png', '/devices/iphone-16-pro-black.png', '/devices/iphone-16-pro-desert.png'],
     variants: [
       { id: 'v-16p-128-wht', storage: '128GB', colour: 'White Titanium', colorHex: '#E3E4E5', price: 112900, mrp: 119900, stock: 2, sku: 'VAS-IP16P-128-WT' },
       { id: 'v-16p-256-nat', storage: '256GB', colour: 'Natural Titanium', colorHex: '#9E9A93', price: 122900, mrp: 129900, stock: 3, sku: 'VAS-IP16P-256-NT' },
@@ -93,7 +93,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPhone 15 Pro',
     tagline: 'Titanium strength at exceptional value.',
     description: 'Thoroughly tested and certified pre-owned iPhone 15 Pro. Never opened, all original parts guaranteed, 94%+ genuine battery health, backed by Vishal Apple Store 6-Month Warranty.',
-    images: ['/devices/iphone-16-pro.svg'],
+    images: ['/devices/iphone-15-pro-natural.png', '/devices/iphone-15-pro-blue.png'],
     variants: [
       { id: 'v-15p-128-nat', storage: '128GB', colour: 'Natural Titanium', colorHex: '#9E9A93', price: 74900, mrp: 134900, stock: 2, sku: 'VAS-IP15P-128-NT' },
       { id: 'v-15p-256-blu', storage: '256GB', colour: 'Blue Titanium', colorHex: '#3B4454', price: 81900, mrp: 144900, stock: 1, sku: 'VAS-IP15P-256-BLT' },
@@ -133,7 +133,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPhone 16',
     tagline: 'Camera control innovation. Next-generation speed.',
     description: 'Factory sealed pack with color-infused back glass, Camera Control tactile button, and high-efficiency A18 chip designed for intensive everyday multitasking.',
-    images: ['/devices/iphone-16-pro.svg'],
+    images: ['/devices/iphone-16-teal.png', '/devices/iphone-16-black.png', '/devices/iphone-16-pink.png'],
     variants: [
       { id: 'v-16-128-blk', storage: '128GB', colour: 'Black', colorHex: '#1F2022', price: 77900, mrp: 79900, stock: 5, sku: 'VAS-IP16-128-BK' },
       { id: 'v-16-128-tea', storage: '128GB', colour: 'Teal', colorHex: '#9FC3C3', price: 77900, mrp: 79900, stock: 3, sku: 'VAS-IP16-128-TL' },
@@ -172,7 +172,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPhone 15',
     tagline: 'Dynamic Island clarity. Universal USB-C port.',
     description: 'Pristine open box device with 100% battery capacity, zero signs of usage. Includes original invoice and balance official warranty through mid-2027.',
-    images: ['/devices/iphone-16-pro.svg'],
+    images: ['/devices/iphone-15-blue.png'],
     variants: [
       { id: 'v-15-128-blu', storage: '128GB', colour: 'Blue', colorHex: '#D4E1E8', price: 59900, mrp: 69900, stock: 4, sku: 'VAS-IP15-128-BL' },
       { id: 'v-15-128-grn', storage: '128GB', colour: 'Green', colorHex: '#D3E3D6', price: 59900, mrp: 69900, stock: 2, sku: 'VAS-IP15-128-GR' },
@@ -211,7 +211,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPhone 14',
     tagline: 'Reliable dual camera and all-day battery.',
     description: 'Carefully curated pre-owned unit. 100% genuine parts, battery health tested at 91%, comprehensive 6-month store warranty included.',
-    images: ['/devices/iphone-16-pro.svg'],
+    images: ['/devices/iphone-14-midnight.png'],
     variants: [
       { id: 'v-14-128-mid', storage: '128GB', colour: 'Midnight', colorHex: '#1D232A', price: 43900, mrp: 69900, stock: 3, sku: 'VAS-IP14-128-MN' },
       { id: 'v-14-128-str', storage: '128GB', colour: 'Starlight', colorHex: '#FAF7F2', price: 43900, mrp: 69900, stock: 2, sku: 'VAS-IP14-128-SL' }
@@ -249,7 +249,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'MacBook Pro 14-inch',
     tagline: 'Pro performance. Space Black anodized chassis.',
     description: 'Brand new sealed unit engineered for creators, coders, and studio workflows. Includes Liquid Retina XDR display with 1000 nits sustained brightness and HDMI 2.1.',
-    images: ['/devices/macbook-pro.svg'],
+    images: ['/devices/macbook-pro-14.png'],
     variants: [
       { id: 'v-mbp14-18gb-512-blk', storage: '18GB Unified / 512GB SSD', colour: 'Space Black', colorHex: '#25262B', price: 184900, mrp: 199900, stock: 2, sku: 'VAS-MBP14-18-512-SB' },
       { id: 'v-mbp14-36gb-1tb-blk', storage: '36GB Unified / 1TB SSD', colour: 'Space Black', colorHex: '#25262B', price: 229900, mrp: 249900, stock: 1, sku: 'VAS-MBP14-36-1TB-SB' },
@@ -287,7 +287,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'MacBook Pro 16-inch',
     tagline: 'Extreme compute power at significant savings.',
     description: 'Corporate executive return with less than 6 battery cycles. 16-core CPU, 40-core GPU, massive 48GB unified memory for 3D animation, 8K video, and local LLM execution.',
-    images: ['/devices/macbook-pro.svg'],
+    images: ['/devices/macbook-pro-16.png'],
     variants: [
       { id: 'v-mbp16-48gb-1tb-blk', storage: '48GB Unified / 1TB SSD', colour: 'Space Black', colorHex: '#25262B', price: 289900, mrp: 349900, stock: 1, sku: 'VAS-MBP16-48-1TB-SB' }
     ],
@@ -323,7 +323,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'MacBook Air 15-inch',
     tagline: 'Expansive display in an ultra-thin 11.5mm silhouette.',
     description: 'The world’s best 15-inch consumer laptop. Fanless silent design, crystal-clear 1080p FaceTime HD camera, and six-speaker sound system with Spatial Audio.',
-    images: ['/devices/macbook-pro.svg'],
+    images: ['/devices/macbook-air-15.png'],
     variants: [
       { id: 'v-mba15-16gb-512-mid', storage: '16GB Unified / 512GB SSD', colour: 'Midnight', colorHex: '#1E2530', price: 139900, mrp: 154900, stock: 3, sku: 'VAS-MBA15-16-512-MN' },
       { id: 'v-mba15-8gb-256-str', storage: '8GB Unified / 256GB SSD', colour: 'Starlight', colorHex: '#FAF7F2', price: 124900, mrp: 134900, stock: 2, sku: 'VAS-MBA15-8-256-SL' }
@@ -360,7 +360,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'MacBook Air 13-inch',
     tagline: 'Ultralight everyday powerhouse.',
     description: 'Certified pre-owned MacBook Air with M2 chip. Inspected for keyboard tactile feel, hinge friction, screen color accuracy, and battery health at 93%.',
-    images: ['/devices/macbook-pro.svg'],
+    images: ['/devices/macbook-air-13.png'],
     variants: [
       { id: 'v-mba13-8gb-256-gry', storage: '8GB Unified / 256GB SSD', colour: 'Space Grey', colorHex: '#68696D', price: 66900, mrp: 99900, stock: 2, sku: 'VAS-MBA13-8-256-SG' },
       { id: 'v-mba13-8gb-256-slv', storage: '8GB Unified / 256GB SSD', colour: 'Silver', colorHex: '#E2E3E5', price: 66900, mrp: 99900, stock: 1, sku: 'VAS-MBA13-8-256-SL' }
@@ -397,7 +397,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPad Pro 13-inch',
     tagline: 'Tandem OLED breakthrough. Unbelievable 5.1mm thinness.',
     description: 'The thinnest product ever created, powered by the breakthrough M4 chip with Ultra Retina XDR dual-panel OLED technology for infinite contrast.',
-    images: ['/devices/ipad-pro.svg'],
+    images: ['/devices/ipad-pro-13.png'],
     variants: [
       { id: 'v-padpro-256-wifi-blk', storage: '256GB (Wi-Fi)', colour: 'Space Black', colorHex: '#25262B', price: 124900, mrp: 129900, stock: 2, sku: 'VAS-PADPRO-256-SB' },
       { id: 'v-padpro-512-wifi-slv', storage: '512GB (Wi-Fi)', colour: 'Silver', colorHex: '#E2E3E5', price: 144900, mrp: 149900, stock: 1, sku: 'VAS-PADPRO-512-SL' }
@@ -434,7 +434,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPad Air 11-inch',
     tagline: 'Turbocharged by M2. Landscape front camera.',
     description: 'Fresh open box condition with zero signs of touch. 100% battery integrity, supports Apple Pencil Pro and Magic Keyboard.',
-    images: ['/devices/ipad-pro.svg'],
+    images: ['/devices/ipad-air-11.png'],
     variants: [
       { id: 'v-padair-128-wifi-blu', storage: '128GB (Wi-Fi)', colour: 'Blue', colorHex: '#C5D6E5', price: 53900, mrp: 59900, stock: 3, sku: 'VAS-PADAIR-128-BL' },
       { id: 'v-padair-128-wifi-gry', storage: '128GB (Wi-Fi)', colour: 'Space Grey', colorHex: '#68696D', price: 53900, mrp: 59900, stock: 2, sku: 'VAS-PADAIR-128-SG' }
@@ -471,7 +471,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'iPad 10th Generation',
     tagline: 'Modern all-screen design for family and students.',
     description: 'Thoroughly tested student device with 10.9-inch Liquid Retina display, fast A14 Bionic processor, and USB-C connectivity.',
-    images: ['/devices/ipad-pro.svg'],
+    images: ['/devices/ipad-10th-gen.png'],
     variants: [
       { id: 'v-pad10-64-slv', storage: '64GB (Wi-Fi)', colour: 'Silver', colorHex: '#E2E3E5', price: 27900, mrp: 34900, stock: 3, sku: 'VAS-PAD10-64-SL' },
       { id: 'v-pad10-64-blu', storage: '64GB (Wi-Fi)', colour: 'Blue', colorHex: '#6B90B2', price: 27900, mrp: 34900, stock: 1, sku: 'VAS-PAD10-64-BL' }
@@ -508,7 +508,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'AirPods Pro (2nd generation)',
     tagline: '2x Active Noise Cancellation. Precision finding case.',
     description: 'Up to 2x more Active Noise Cancellation, Adaptive Audio that tailors noise control to your environment, and universal USB-C charging with MagSafe.',
-    images: ['/devices/airpods-pro.svg'],
+    images: ['/devices/airpods-pro-2.png'],
     variants: [
       { id: 'v-app2-std', storage: 'Standard', colour: 'Glossy White', colorHex: '#FFFFFF', price: 20900, mrp: 24900, stock: 8, sku: 'VAS-APP2-USBC' }
     ],
@@ -544,7 +544,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'AirPods Max (USB-C)',
     tagline: 'Acoustic fidelity in anodized Midnight aluminum.',
     description: 'Pristine open box with USB-C connector. Breathable knit mesh canopy, memory foam acoustic ear cushions, and computational spatial audio.',
-    images: ['/devices/airpods-max.svg'],
+    images: ['/devices/airpods-max.png'],
     variants: [
       { id: 'v-apmax-mid', storage: 'Standard', colour: 'Midnight', colorHex: '#1D2228', price: 47900, mrp: 59900, stock: 2, sku: 'VAS-APMAX-MN' },
       { id: 'v-apmax-slv', storage: 'Standard', colour: 'Silver', colorHex: '#E2E3E5', price: 47900, mrp: 59900, stock: 1, sku: 'VAS-APMAX-SL' }
@@ -581,7 +581,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'AirPods 4 ANC',
     tagline: 'Open-ear acoustic comfort with Active Noise Cancellation.',
     description: 'All-new acoustic architecture with H2 chip bringing Active Noise Cancellation, Transparency mode, and Adaptive Audio to an open-ear shape for the first time.',
-    images: ['/devices/airpods-pro.svg'],
+    images: ['/devices/airpods-4.png'],
     variants: [
       { id: 'v-ap4-std', storage: 'Standard', colour: 'White', colorHex: '#FFFFFF', price: 16900, mrp: 17900, stock: 6, sku: 'VAS-AP4-ANC' }
     ],
@@ -617,7 +617,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'Apple Watch Ultra 2',
     tagline: 'The ultimate sports and adventure watch.',
     description: 'Aerospace-grade 49mm titanium case, precision dual-frequency GPS, customizable Orange Action Button, and up to 3000 nits display brightness for extreme outdoor readability.',
-    images: ['/devices/watch-ultra.svg'],
+    images: ['/devices/watch-ultra-2.png'],
     variants: [
       { id: 'v-wultra2-blk-alp', storage: '49mm GPS + Cellular', colour: 'Black Titanium / Dark Green Alpine Loop', colorHex: '#25262B', price: 84900, mrp: 89900, stock: 3, sku: 'VAS-WULTRA2-BT-ALP' },
       { id: 'v-wultra2-nat-ocn', storage: '49mm GPS + Cellular', colour: 'Natural Titanium / Blue Ocean Band', colorHex: '#9E9A93', price: 84900, mrp: 89900, stock: 2, sku: 'VAS-WULTRA2-NT-OCN' }
@@ -654,7 +654,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'Apple Watch Series 10',
     tagline: 'Thinnest Apple Watch ever with wide-angle OLED.',
     description: 'Open box 46mm GPS Series 10 watch. Up to 40% brighter when viewed off-axis, faster charging (80% in 30 mins), and sleep apnea notification capabilities.',
-    images: ['/devices/watch-s10.svg'],
+    images: ['/devices/watch-series-10.png'],
     variants: [
       { id: 'v-ws10-46-jet', storage: '46mm GPS', colour: 'Jet Black Aluminum', colorHex: '#080808', price: 41900, mrp: 46900, stock: 3, sku: 'VAS-WS10-46-JB' },
       { id: 'v-ws10-46-rgl', storage: '46mm GPS', colour: 'Rose Gold', colorHex: '#E8C5BE', price: 41900, mrp: 46900, stock: 1, sku: 'VAS-WS10-46-RG' }
@@ -691,7 +691,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'Apple Watch SE (2nd Gen)',
     tagline: 'Essential fitness, tracking, and safety features.',
     description: 'Certified pre-owned Apple Watch SE with 96% battery cycle health. Perfect everyday smart health companion with fall detection and crash detection.',
-    images: ['/devices/watch-s10.svg'],
+    images: ['/devices/watch-se-2.png'],
     variants: [
       { id: 'v-wse2-40-mid', storage: '40mm GPS', colour: 'Midnight', colorHex: '#1D232A', price: 17900, mrp: 29900, stock: 4, sku: 'VAS-WSE2-40-MN' }
     ],
@@ -727,7 +727,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'MagSafe Charger',
     tagline: 'Up to 25W wireless fast charging with braided longevity.',
     description: 'Original Apple 2-metre braided MagSafe fast charger. Delivers up to 25W fast wireless power to iPhone 16 models when paired with a 30W adapter.',
-    images: ['/devices/magsafe-charger.svg'],
+    images: ['/devices/magsafe-charger.png'],
     variants: [
       { id: 'v-magsafe-2m', storage: '2 Metre', colour: 'Silver / White Braided', colorHex: '#E2E3E5', price: 4290, mrp: 4500, stock: 12, sku: 'VAS-ACC-MAG2M' }
     ],
@@ -763,7 +763,7 @@ export const initialProducts: Product[] = [
     deviceModel: '35W Dual USB-C Adapter',
     tagline: 'Charge two devices simultaneously with foldable pins.',
     description: 'Compact official power adapter allowing simultaneous charging of your MacBook and iPhone or iPad and Apple Watch from a single wall outlet.',
-    images: ['/devices/power-adapter.svg'],
+    images: ['/devices/power-adapter.png'],
     variants: [
       { id: 'v-gan-35w', storage: '35W Dual Port', colour: 'White', colorHex: '#FFFFFF', price: 5390, mrp: 5800, stock: 10, sku: 'VAS-ACC-35WDUAL' }
     ],
@@ -799,7 +799,7 @@ export const initialProducts: Product[] = [
     deviceModel: 'Apple Pencil Pro',
     tagline: 'Squeeze gesture, barrel roll, and haptic feedback.',
     description: 'Like-new open box Apple Pencil Pro. Magnetic pairing and charging on compatible iPad Pro M4 and iPad Air M2 models.',
-    images: ['/devices/magsafe-charger.svg'],
+    images: ['/devices/apple-pencil-pro.png'],
     variants: [
       { id: 'v-penpro-wht', storage: 'Standard', colour: 'Matte White', colorHex: '#FAFAFA', price: 10900, mrp: 11900, stock: 4, sku: 'VAS-ACC-PENCILPRO' }
     ],

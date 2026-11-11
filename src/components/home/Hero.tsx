@@ -101,7 +101,7 @@ export default function Hero() {
               {/* Device illustration */}
               <div className="relative w-[85%] h-[90%] transform hover:scale-[1.02] transition-transform duration-500">
                 <Image
-                  src="/devices/iphone-16-pro.svg"
+                  src="/devices/iphone-16-pro-natural.png"
                   alt="Curated Apple Devices - Vishal Apple Store"
                   fill
                   priority

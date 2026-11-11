@@ -14,10 +14,12 @@ import {
   MapPin,
   Sparkles,
   Lock,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export default function Header() {
-  const { settings, compareList } = useStore();
+  const { settings, compareList, theme, toggleTheme } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const whatsappHref = buildWhatsAppLink(
@@ -124,6 +126,21 @@ export default function Header() {
               <span>WhatsApp Us</span>
             </a>
 
+            {/* Theme Toggle Button (Light / Dark) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex items-center justify-center p-2 rounded-full text-neutral-300 hover:text-white hover:bg-neutral-800/80 transition-colors border border-white/10"
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Theme`}
+              aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Theme`}
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-neutral-700" />
+              )}
+            </button>
+
             {/* Admin Link */}
             <Link
               href="/admin"
@@ -218,6 +235,19 @@ export default function Header() {
               <Lock className="w-3.5 h-3.5" />
               Store Owner Portal (/admin)
             </Link>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="w-full flex items-center justify-between py-2 px-4 rounded-xl bg-neutral-900 text-neutral-300 text-xs hover:text-white border border-white/5"
+            >
+              <span className="flex items-center gap-2">
+                {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-neutral-400" />}
+                <span>Theme Mode</span>
+              </span>
+              <span className="text-[11px] font-semibold text-[#C9A24A]">
+                {theme === 'dark' ? 'Light Theme ☀️' : 'Dark Theme 🌙'}
+              </span>
+            </button>
           </div>
         </div>
       )}

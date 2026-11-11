@@ -39,6 +39,9 @@ interface StoreContextType {
     updates: { price?: number; stock?: number; inStock?: boolean }
   ) => Promise<Product>;
   submitEnquiry: (enquiry: Omit<Enquiry, 'id' | 'createdAt'>) => Promise<Enquiry>;
+  // Theme
+  theme: 'dark' | 'light';
+  toggleTheme: () => void;
   // Auth
   isAdmin: boolean;
   loginAdmin: (password: string, email: string) => boolean;
@@ -56,6 +59,34 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [compareList, setCompareList] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  // Initialize theme from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('vas_theme') as 'dark' | 'light' | null;
+      if (saved === 'light' || saved === 'dark') {
+        setTheme(saved);
+        document.documentElement.classList.remove('dark', 'light');
+        document.documentElement.classList.add(saved);
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+    } catch {}
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('vas_theme', next);
+      } catch {}
+      document.documentElement.classList.remove('dark', 'light');
+      document.documentElement.classList.add(next);
+      return next;
+    });
+  }, []);
 
   const loadAll = useCallback(async () => {
     try {
@@ -199,6 +230,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         refreshData: loadAll,
         quickUpdateProduct,
         submitEnquiry,
+        theme,
+        toggleTheme,
         isAdmin,
         loginAdmin,
         logoutAdmin,

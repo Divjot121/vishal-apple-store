@@ -96,7 +96,7 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
         >
           <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
           <Image
-            src={product.images[0] || '/devices/iphone-16-pro.svg'}
+            src={product.images[0] || '/devices/iphone-16-pro-natural.png'}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
