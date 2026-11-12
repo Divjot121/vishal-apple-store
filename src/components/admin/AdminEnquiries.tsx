@@ -223,14 +223,14 @@ export default function AdminEnquiries() {
                 </div>
 
                 {/* Right Actions & Status Switcher */}
-                <div className="flex items-center gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/[0.06]">
+                <div className="flex flex-wrap items-center gap-3 md:shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/[0.06]">
                   {/* Status Dropdown */}
                   <select
                     value={enq.status}
                     onChange={(e) =>
                       handleStatusChange(enq.id, e.target.value as EnquiryStatus)
                     }
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border focus:outline-none ${
+                    className={`basis-full md:basis-auto px-3 py-1.5 rounded-xl text-xs font-bold border focus:outline-none ${
                       enq.status === 'New'
                         ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
                         : enq.status === 'Contacted'
@@ -248,7 +248,7 @@ export default function AdminEnquiries() {
                     href={waHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#C9A24A] hover:bg-[#b8913d] text-black font-bold text-xs transition-colors shadow-md"
+                    className="flex flex-1 md:flex-none min-h-[44px] md:min-h-0 items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#C9A24A] hover:bg-[#b8913d] text-black font-bold text-xs transition-colors shadow-md"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
                     <span>WhatsApp</span>
@@ -258,8 +258,9 @@ export default function AdminEnquiries() {
                   <button
                     type="button"
                     onClick={() => handleDeleteEnquiry(enq.id)}
-                    className="p-2 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-neutral-800"
+                    className="inline-flex min-w-[44px] items-center justify-center p-2 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-neutral-800"
                     title="Delete record"
+                    aria-label={`Delete enquiry from ${enq.customerName}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

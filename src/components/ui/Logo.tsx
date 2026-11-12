@@ -6,10 +6,15 @@ import { cn } from '@/lib/utils';
  * The source file has wide white margins, so the frame below trims to the
  * artwork plus a small margin; clear space comes from the wrapper padding.
  *
- * - tone="auto": on the light theme the white paper is multiplied away so the
- *   mark sits directly on the off-white canvas; on the dark theme it sits on a
- *   white plate.
- * - tone="plate": always on a white plate (dark sections such as the footer).
+ * The artwork is a one-colour mark, so on dark backgrounds it is shown reversed
+ * (white on dark) rather than on a white plate. Nothing about the file changes;
+ * it is composited:
+ * - light surface: `multiply` drops the white paper, leaving the black mark.
+ * - dark surface: `invert` turns it into a white mark on black paper, then
+ *   `screen` drops the black paper, leaving the white mark on the surface.
+ *
+ * - tone="auto": follows the site theme (header).
+ * - tone="reverse": always white-on-dark (footer, admin, any night section).
  */
 const SRC_W = 1600;
 const SRC_H = 601;
@@ -23,7 +28,7 @@ export default function Logo({
   width = 168,
   minWidth,
 }: {
-  tone?: 'auto' | 'plate';
+  tone?: 'auto' | 'reverse';
   className?: string;
   priority?: boolean;
   /** rendered width of the artwork in CSS px (the maximum, if minWidth is set) */
@@ -34,11 +39,7 @@ export default function Logo({
   const cssWidth = minWidth ? `clamp(${minWidth}px, 40vw, ${width}px)` : width;
   return (
     <span
-      className={cn(
-        'inline-block rounded-md',
-        tone === 'plate' ? 'bg-white p-2.5' : 'dark:bg-white dark:p-2',
-        className
-      )}
+      className={cn('inline-block', className)}
     >
       <span
         className="relative block overflow-hidden"
@@ -51,7 +52,10 @@ export default function Logo({
           height={SRC_H}
           priority={priority}
           sizes={`${Math.round((width * SRC_W) / CROP.w)}px`}
-          className={cn('absolute max-w-none', tone === 'auto' && 'mix-blend-multiply dark:mix-blend-normal')}
+          className={cn(
+            'absolute max-w-none',
+            tone === 'auto' ? 'mix-blend-multiply dark:mix-blend-screen dark:invert' : 'mix-blend-screen invert'
+          )}
           style={{
             width: `${(SRC_W / CROP.w) * 100}%`,
             height: 'auto',

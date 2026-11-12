@@ -27,7 +27,7 @@ export default function Footer() {
       <div className="wrap grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 lg:py-20">
         <div className="sm:col-span-2 lg:col-span-4">
           <Link href="/" aria-label="Vishal Apple Store, home" className="inline-block rounded-md">
-            <Logo tone="plate" width={176} />
+            <Logo tone="reverse" width={176} />
           </Link>
           <p className="mt-5 max-w-sm">{settings.shortDescription}</p>
           <ul className="mt-4 space-y-0.5">
