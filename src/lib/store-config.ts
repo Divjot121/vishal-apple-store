@@ -47,9 +47,9 @@ export interface StoreConfig {
 
 export const defaultStoreConfig: StoreConfig = {
   storeName: "Vishal Apple Store",
-  tagline: "Pure Performance. Unrivalled Craft. Curated in Amritsar.",
-  subtitle: "New, Unboxed & Certified Pre-Owned Apple Devices with Transparent Diagnostics & Store Warranty.",
-  shortDescription: "Amritsar and Punjab's trusted destination for genuine Apple devices, certified trade-ins, and precision hardware care.",
+  tagline: "Apple devices, checked in front of you.",
+  subtitle: "New sealed stock, open-box units and pre-owned phones we have tested ourselves. GST bill on every sale.",
+  shortDescription: "An independent shop in Ranjit Avenue selling new, open-box and checked pre-owned iPhone, Mac, iPad and Apple Watch. Repairs and exchange too.",
   phone: "+91 98765 43210",
   phoneRaw: "+919876543210",
   whatsapp: "+91 98765 43210",
@@ -66,9 +66,9 @@ export const defaultStoreConfig: StoreConfig = {
     fullFormatted: "Shop No. 14, District Shopping Complex, B-Block, Ranjit Avenue, Amritsar, Punjab - 143001",
   },
   timings: {
-    weekdays: "Monday – Saturday: 10:30 AM – 9:00 PM",
-    sunday: "Sunday: 11:30 AM – 8:00 PM",
-    note: "Walk-ins welcome. Device inspections take ~15 mins.",
+    weekdays: "Mon–Sat: 10:30 am – 9 pm",
+    sunday: "Sun: 11:30 am – 8 pm",
+    note: "Walk in any time. A pre-owned check takes about 15 minutes.",
   },
   socials: {
     instagramHandle: "@vishalapplestore",
@@ -78,10 +78,10 @@ export const defaultStoreConfig: StoreConfig = {
     googleMapsDirectionsUrl: "https://maps.google.com/?q=Ranjit+Avenue+District+Shopping+Complex+Amritsar+Punjab",
   },
   brand: {
-    logoHorizontal: "/brand/horizontal.jpeg",
-    logoStacked: "/brand/main.jpeg",
+    logoHorizontal: "/brand/logo-horizontal.jpg",
+    logoStacked: "/brand/logo-stacked.jpg",
     accentColor: "#C9A24A",
-    disclaimer: "Vishal Apple Store is an independent retailer specializing in authentic Apple devices and accessories. We are not an Apple Authorized Reseller and Apple Inc. trademarks belong to their respective owners.",
+    disclaimer: "Vishal Apple Store is an independent shop. We are not an Apple Authorised Reseller and are not affiliated with Apple Inc. Apple, iPhone, iPad, Mac, AirPods and Apple Watch are trademarks of Apple Inc.",
     gstNumber: "03AAAAA0000A1Z5 (Provided on official tax invoice)",
   },
 };
