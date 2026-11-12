@@ -235,9 +235,9 @@ export default function CatalogSection({ selectedCategory, onSelectCategory }: C
         ) : (
           <>
             <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-              {shown.map((product, i) => (
+              {shown.map((product) => (
                 <li key={product.id}>
-                  <ProductCard product={product} priority={i < 2} />
+                  <ProductCard product={product} />
                 </li>
               ))}
             </ul>
