@@ -2,31 +2,27 @@
 
 import React, { useState } from 'react';
 import Hero from '@/components/home/Hero';
-import CategoryStrip from '@/components/home/CategoryStrip';
 import CatalogSection from '@/components/home/CatalogSection';
+import CheckSection from '@/components/home/CheckSection';
 import OffersSection from '@/components/home/OffersSection';
 import EmiTradeInTools from '@/components/home/EmiTradeInTools';
-import TrustSection from '@/components/home/TrustSection';
+import ReviewsSection from '@/components/home/ReviewsSection';
+import RepairSection from '@/components/home/RepairSection';
 import VisitSection from '@/components/home/VisitSection';
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <>
       <Hero />
-      <CategoryStrip
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
-      <CatalogSection
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
+      <CatalogSection selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+      <CheckSection />
       <OffersSection />
       <EmiTradeInTools />
-      <TrustSection />
+      <ReviewsSection />
+      <RepairSection />
       <VisitSection />
-    </div>
+    </>
   );
 }

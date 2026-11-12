@@ -1,405 +1,291 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { useStore } from '@/context/StoreContext';
-import { formatINR, buildWhatsAppLink, calculateMonthlyEMI } from '@/lib/utils';
-import {
-  Calculator,
-  RefreshCw,
-  AlertCircle,
-  MessageCircle,
-  CreditCard,
-  CheckCircle2,
-  ChevronRight,
-} from 'lucide-react';
+import { formatINR, buildWhatsAppLink, calculateMonthlyEMI, cn } from '@/lib/utils';
+import { CONDITION_LABEL } from '@/lib/catalog';
+import { MessageCircle } from 'lucide-react';
+
+const TRADE_IN_RATES: Record<string, number> = {
+  'iPhone 15 Pro Max (256GB)': 58000,
+  'iPhone 15 Pro (128GB)': 48000,
+  'iPhone 15 (128GB)': 36000,
+  'iPhone 14 Pro Max (128GB)': 44000,
+  'iPhone 14 Pro (128GB)': 38000,
+  'iPhone 14 (128GB)': 28000,
+  'iPhone 13 Pro (128GB)': 31000,
+  'iPhone 13 (128GB)': 23500,
+  'iPhone 12 (128GB)': 17000,
+  'iPhone 11 (128GB)': 12500,
+  'MacBook Air M1 (256GB)': 32000,
+  'iPad Pro 11" M1': 27000,
+};
+
+const CONDITIONS: Record<string, { mult: number; label: string; desc: string }> = {
+  flawless: { mult: 1.0, label: 'Like new', desc: 'No marks, battery 90% or more' },
+  good: { mult: 0.9, label: 'Good', desc: 'Light hairlines, battery 85% or more' },
+  average: { mult: 0.75, label: 'Used', desc: 'Normal wear, battery needs service' },
+  scratches: { mult: 0.6, label: 'Rough', desc: 'Dents, scuffs or a cracked back' },
+};
+
+const EXCHANGE_BONUS = 4000;
+const TENURES = [3, 6, 9, 12, 18, 24];
+
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className={cn('flex justify-between gap-4 py-2', strong && 'border-t border-line pt-3')}>
+      <dt className="text-ink-3">{label}</dt>
+      <dd className={cn('tabular text-right font-medium text-ink', strong && 'font-semibold')}>{value}</dd>
+    </div>
+  );
+}
 
 export default function EmiTradeInTools() {
   const { products, settings } = useStore();
-  const [activeTab, setActiveTab] = useState<'emi' | 'tradein'>('emi');
+  const [tab, setTab] = useState<'emi' | 'tradein'>('emi');
+  const ids = useId();
 
-  // EMI Calculator State
-  const [selectedProductId, setSelectedProductId] = useState<string>(
-    products[0]?.id || ''
-  );
-  const selectedProduct = products.find((p) => p.id === selectedProductId) || products[0];
-  const devicePrice = selectedProduct ? selectedProduct.basePrice : 119900;
+  // Only things people actually take on EMI
+  const emiProducts = products.filter((p) => p.isVisible && p.basePrice >= 15000);
 
-  const [downPayment, setDownPayment] = useState<number>(
-    Math.round(devicePrice * 0.2)
-  );
+  // EMI
+  const [productId, setProductId] = useState<string>(emiProducts[0]?.id || '');
+  const selected = emiProducts.find((p) => p.id === productId) || emiProducts[0];
+  const devicePrice = selected ? selected.basePrice : 0;
+  const [downPayment, setDownPayment] = useState<number>(Math.round((emiProducts[0]?.basePrice || 0) * 0.2));
   const [tenure, setTenure] = useState<number>(12);
-  const [isNoCost, setIsNoCost] = useState<boolean>(true);
+  const [noCost, setNoCost] = useState<boolean>(true);
+  const rate = noCost ? 0 : 13.5;
+  const principal = Math.max(0, devicePrice - downPayment);
+  const { monthlyEmi, totalInterest } = calculateMonthlyEMI(principal, rate, tenure);
 
-  const interestRate = isNoCost ? 0 : 13.5;
-  const principalLoan = Math.max(0, devicePrice - downPayment);
-  const { monthlyEmi, totalInterest, totalPayable } = calculateMonthlyEMI(
-    principalLoan,
-    interestRate,
-    tenure
-  );
-
-  // Trade-In Estimator State
+  // Trade-in
   const [tradeModel, setTradeModel] = useState<string>('iPhone 13 (128GB)');
   const [tradeCondition, setTradeCondition] = useState<string>('good');
-  const [targetUpgradeId, setTargetUpgradeId] = useState<string>(
-    products[0]?.id || ''
+  const [targetId, setTargetId] = useState<string>(emiProducts[0]?.id || '');
+  const tradeValue = Math.round((TRADE_IN_RATES[tradeModel] || 20000) * (CONDITIONS[tradeCondition]?.mult || 0.9));
+  const credit = tradeValue + EXCHANGE_BONUS;
+  const target = emiProducts.find((p) => p.id === targetId) || emiProducts[0];
+  const netCost = target ? Math.max(0, target.basePrice - credit) : 0;
+
+  const emiHref = buildWhatsAppLink(
+    settings.whatsappRaw,
+    `Hi, I'd like EMI on the ${selected?.name} (${formatINR(devicePrice)}): ${formatINR(downPayment)} down, ${tenure} months. Which cards work for no-cost EMI?`
+  );
+  const tradeHref = buildWhatsAppLink(
+    settings.whatsappRaw,
+    `Hi, I want to exchange my ${tradeModel} (${CONDITIONS[tradeCondition]?.label.toLowerCase()} condition) for the ${target?.name}. The website estimate was about ${formatINR(credit)}. When can I bring it in?`
   );
 
-  const tradeInBaseRates: Record<string, number> = {
-    'iPhone 15 Pro Max (256GB)': 58000,
-    'iPhone 15 Pro (128GB)': 48000,
-    'iPhone 15 (128GB)': 36000,
-    'iPhone 14 Pro Max (128GB)': 44000,
-    'iPhone 14 Pro (128GB)': 38000,
-    'iPhone 14 (128GB)': 28000,
-    'iPhone 13 Pro (128GB)': 31000,
-    'iPhone 13 (128GB)': 23500,
-    'iPhone 12 (128GB)': 17000,
-    'iPhone 11 (128GB)': 12500,
-    'MacBook Air M1 (256GB)': 32000,
-    'iPad Pro 11" M1': 27000,
-  };
-
-  const conditionMultipliers: Record<string, { mult: number; label: string; desc: string }> = {
-    flawless: { mult: 1.0, label: 'Flawless', desc: 'No visible marks, 90%+ battery, all parts OEM' },
-    good: { mult: 0.9, label: 'Good', desc: 'Minor micro hairline marks, 85%+ battery' },
-    average: { mult: 0.75, label: 'Average', desc: 'Normal pocket wear, battery service needed' },
-    scratches: { mult: 0.6, label: 'Dents / Scuffs', desc: 'Corner scuffs or back glass micro abrasions' },
-  };
-
-  const baseRate = tradeInBaseRates[tradeModel] || 20000;
-  const multiplier = conditionMultipliers[tradeCondition]?.mult || 0.9;
-  const estimatedTradeInValue = Math.round(baseRate * multiplier);
-  const exchangeBonus = 4000; // Festive exchange bonus
-  const totalTradeInCredit = estimatedTradeInValue + exchangeBonus;
-
-  const targetUpgrade = products.find((p) => p.id === targetUpgradeId) || products[0];
-  const netUpgradeCost = targetUpgrade ? Math.max(0, targetUpgrade.basePrice - totalTradeInCredit) : 0;
-
-  // WhatsApp Links
-  const emiWhatsAppHref = buildWhatsAppLink(
-    settings.whatsappRaw,
-    `Hi Vishal Apple Store, I calculated an EMI estimate for ${selectedProduct?.name} (${formatINR(devicePrice)}). Down payment: ${formatINR(downPayment)}, Tenure: ${tenure} months. Can you check my HDFC/ICICI No-Cost card eligibility?`
-  );
-
-  const tradeInWhatsAppHref = buildWhatsAppLink(
-    settings.whatsappRaw,
-    `Hi Vishal Apple Store, I evaluated a trade-in for my ${tradeModel} in ${conditionMultipliers[tradeCondition]?.label} condition (Estimated Credit ~${formatINR(totalTradeInCredit)}). I want to upgrade to ${targetUpgrade?.name}. Can I bring it for in-store physical valuation?`
+  const option = (p: (typeof emiProducts)[number]) => (
+    <option key={p.id} value={p.id}>
+      {p.name} · {CONDITION_LABEL[p.condition]} · {formatINR(p.basePrice)}
+    </option>
   );
 
   return (
-    <section id="tools" className="w-full bg-[#0A0A0A] py-16 sm:py-24 border-b border-white/[0.08]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#C9A24A]">
-            Financial Clarity & Exchange Tools
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mt-1.5">
-            Transparent EMI & Trade-In
+    <section id="tools" className="section border-y border-line bg-surface" aria-labelledby="tools-title">
+      <div className="wrap grid gap-10 lg:grid-cols-12 lg:gap-16">
+        <div className="lg:col-span-4">
+          <p className="eyebrow">Before you visit</p>
+          <h2 id="tools-title" className="mt-3 text-title">
+            Work out the EMI, or what your old phone is worth
           </h2>
-          <p className="text-sm text-neutral-400 mt-2">
-            Calculate your monthly ownership installments or estimate your existing device credit before stepping into our Ranjit Avenue, Amritsar store.
+          <p className="mt-4 max-w-prose text-ink-2">
+            Rough numbers to plan with. The final exchange price is set after we check the phone in the shop,
+            which takes about ten minutes, and card EMI depends on your bank.
           </p>
 
-          {/* Toggle Switch */}
-          <div className="inline-flex items-center p-1 rounded-full bg-[#141418] border border-white/10 mt-6">
-            <button
-              type="button"
-              onClick={() => setActiveTab('emi')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold transition-all ${
-                activeTab === 'emi'
-                  ? 'bg-white text-black shadow-md'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              <Calculator className="w-3.5 h-3.5" />
-              <span>EMI Calculator</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('tradein')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold transition-all ${
-                activeTab === 'tradein'
-                  ? 'bg-[#C9A24A] text-black shadow-md'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Trade-In Estimator</span>
-            </button>
+          <div role="tablist" aria-label="Calculator" className="mt-8 inline-flex rounded-full border border-line bg-canvas p-1">
+            {(
+              [
+                ['emi', 'EMI'],
+                ['tradein', 'Exchange value'],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                id={`${ids}-tab-${key}`}
+                role="tab"
+                type="button"
+                aria-selected={tab === key}
+                aria-controls={`${ids}-panel-${key}`}
+                onClick={() => setTab(key)}
+                className={cn(
+                  'min-h-[44px] rounded-full px-5 text-small font-semibold transition-colors',
+                  tab === key ? 'bg-ink text-canvas' : 'text-ink-2 hover:text-ink'
+                )}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Tab 1: EMI Calculator */}
-        {activeTab === 'emi' && (
-          <div className="max-w-4xl mx-auto bg-[#121215] border border-white/[0.08] rounded-3xl p-6 sm:p-10 shadow-2xl animate-fade-in">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Controls Column */}
-              <div className="lg:col-span-7 space-y-6">
-                {/* Device Selector */}
+        <div className="lg:col-span-8">
+          {tab === 'emi' ? (
+            <div
+              id={`${ids}-panel-emi`}
+              role="tabpanel"
+              aria-labelledby={`${ids}-tab-emi`}
+              className="grid gap-6 rounded-card border border-line bg-canvas p-5 sm:p-7 md:grid-cols-[1fr_18rem]"
+            >
+              <div className="space-y-6">
                 <div>
-                  <label htmlFor="emi-device-select" className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                    Select Device for EMI
-                  </label>
+                  <label htmlFor={`${ids}-emi-device`} className="field-label">Device</label>
                   <select
-                    id="emi-device-select"
-                    value={selectedProductId}
+                    id={`${ids}-emi-device`}
+                    value={selected?.id}
                     onChange={(e) => {
-                      setSelectedProductId(e.target.value);
-                      const p = products.find((item) => item.id === e.target.value);
+                      setProductId(e.target.value);
+                      const p = emiProducts.find((x) => x.id === e.target.value);
                       if (p) setDownPayment(Math.round(p.basePrice * 0.2));
                     }}
-                    className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-white/10 text-white text-sm focus:outline-none focus:border-[#C9A24A]"
+                    className="field"
                   >
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.condition}) - {formatINR(p.basePrice)}
-                      </option>
-                    ))}
+                    {emiProducts.map(option)}
                   </select>
                 </div>
 
-                {/* Down Payment Slider */}
                 <div>
-                  <div className="flex items-center justify-between text-xs mb-2">
-                    <span className="font-medium text-neutral-300">Down Payment</span>
-                    <span className="font-bold text-[#C9A24A] text-sm">
-                      {formatINR(downPayment)}
-                    </span>
+                  <div className="flex items-baseline justify-between">
+                    <label htmlFor={`${ids}-down`} className="field-label">Down payment</label>
+                    <span className="tabular text-small font-semibold text-ink">{formatINR(downPayment)}</span>
                   </div>
                   <input
+                    id={`${ids}-down`}
                     type="range"
                     min={0}
                     max={devicePrice}
-                    step={2000}
-                    value={downPayment}
+                    step={1000}
+                    value={Math.min(downPayment, devicePrice)}
                     onChange={(e) => setDownPayment(Number(e.target.value))}
-                    className="w-full accent-[#C9A24A] bg-neutral-800 h-2 rounded-lg cursor-pointer"
+                    aria-valuetext={formatINR(downPayment)}
+                    className="h-11 w-full cursor-pointer accent-[rgb(var(--ink))]"
                   />
-                  <div className="flex justify-between text-[11px] text-neutral-400 mt-1">
-                    <span>₹0 (Zero Down)</span>
-                    <span>50%</span>
-                    <span>Full Price</span>
+                  <div className="flex justify-between text-caption text-ink-3">
+                    <span>₹0</span>
+                    <span className="tabular">{formatINR(devicePrice)}</span>
                   </div>
                 </div>
 
-                {/* Tenure Selection */}
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                    Tenure Period
-                  </label>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {[3, 6, 9, 12, 18, 24].map((m) => (
+                <fieldset>
+                  <legend className="field-label">Months</legend>
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                    {TENURES.map((m) => (
                       <button
                         key={m}
                         type="button"
+                        aria-pressed={tenure === m}
                         onClick={() => setTenure(m)}
-                        className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all border ${
-                          tenure === m
-                            ? 'bg-white text-black border-white'
-                            : 'bg-neutral-900 text-neutral-300 border-white/5 hover:border-white/20'
-                        }`}
+                        className="chip px-2"
                       >
-                        {m} Mo
+                        {m}
                       </button>
                     ))}
                   </div>
-                </div>
+                </fieldset>
 
-                {/* No-Cost Scheme Toggle */}
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-neutral-900/60 border border-white/[0.06]">
+                <div className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface p-3.5">
                   <div>
-                    <p className="text-xs font-semibold text-white">No-Cost EMI Scheme</p>
-                    <p className="text-[11px] text-neutral-400">Available on HDFC & ICICI Bank Cards</p>
+                    <p id={`${ids}-nocost`} className="text-small font-semibold text-ink">No-cost EMI</p>
+                    <p className="text-caption text-ink-3">On HDFC and ICICI credit cards</p>
                   </div>
                   <button
                     type="button"
-                    onClick={() => setIsNoCost(!isNoCost)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      isNoCost ? 'bg-[#C9A24A]' : 'bg-neutral-800'
-                    }`}
+                    role="switch"
+                    aria-checked={noCost}
+                    aria-labelledby={`${ids}-nocost`}
+                    onClick={() => setNoCost((v) => !v)}
+                    className="relative inline-flex h-11 w-14 shrink-0 items-center"
                   >
+                    <span className={cn('absolute inset-x-0 h-7 rounded-full transition-colors', noCost ? 'bg-ink' : 'bg-line-strong')} />
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-black transition-transform ${
-                        isNoCost ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                      className={cn(
+                        'absolute h-5 w-5 rounded-full bg-canvas shadow transition-transform',
+                        noCost ? 'translate-x-8' : 'translate-x-1'
+                      )}
                     />
                   </button>
                 </div>
               </div>
 
-              {/* Output Summary Card */}
-              <div className="lg:col-span-5 bg-gradient-to-b from-[#18181E] to-[#121215] border border-white/10 rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-6">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-[#C9A24A] mb-1">
-                    Monthly Estimate
-                  </p>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                    {formatINR(monthlyEmi)}
-                    <span className="text-xs font-normal text-neutral-400 ml-1.5">/ month</span>
-                  </div>
-
-                  <div className="mt-6 space-y-2.5 text-xs text-neutral-300 border-t border-white/[0.08] pt-4">
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Principal Loan</span>
-                      <span className="font-semibold text-white">{formatINR(principalLoan)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Interest ({interestRate}%)</span>
-                      <span className="font-semibold text-emerald-400">{isNoCost ? '₹0 (Subsidized)' : formatINR(totalInterest)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Tenure Duration</span>
-                      <span className="font-semibold text-white">{tenure} Months</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2 text-[11px] text-neutral-400 leading-snug bg-neutral-900/60 p-2.5 rounded-lg border border-white/[0.04]">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                    <span>
-                      Estimates for illustrative purposes. Actual card & NBFC schemes (HDFC, ICICI, Bajaj Finserv) verified at store checkout.
-                    </span>
-                  </div>
-
-                  <a
-                    href={emiWhatsAppHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#C9A24A] hover:bg-[#b8913d] text-black font-semibold text-xs transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Check Bank Offers on WhatsApp</span>
-                  </a>
-                </div>
+              <div className="flex flex-col rounded-control bg-subtle p-5" aria-live="polite">
+                <p className="text-small text-ink-3">Every month</p>
+                <p className="tabular mt-1 text-title text-ink">{formatINR(monthlyEmi)}</p>
+                <dl className="mt-4 text-small">
+                  <Row label="Loan amount" value={formatINR(principal)} />
+                  <Row label={noCost ? 'Interest (no-cost)' : `Interest at ${rate}%`} value={formatINR(totalInterest)} />
+                  <Row label="Months" value={String(tenure)} />
+                </dl>
+                <a href={emiHref} target="_blank" rel="noopener noreferrer" className="btn-primary mt-6 w-full">
+                  <MessageCircle className="h-4 w-4" aria-hidden />
+                  Check my card
+                </a>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Tab 2: Trade-In Estimator */}
-        {activeTab === 'tradein' && (
-          <div className="max-w-4xl mx-auto bg-[#121215] border border-white/[0.08] rounded-3xl p-6 sm:p-10 shadow-2xl animate-fade-in">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-6">
-                {/* Current Device Model */}
+          ) : (
+            <div
+              id={`${ids}-panel-tradein`}
+              role="tabpanel"
+              aria-labelledby={`${ids}-tab-tradein`}
+              className="grid gap-6 rounded-card border border-line bg-canvas p-5 sm:p-7 md:grid-cols-[1fr_18rem]"
+            >
+              <div className="space-y-6">
                 <div>
-                  <label htmlFor="trade-current-device" className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                    Current Device You Want to Exchange
-                  </label>
-                  <select
-                    id="trade-current-device"
-                    value={tradeModel}
-                    onChange={(e) => setTradeModel(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-white/10 text-white text-sm focus:outline-none focus:border-[#C9A24A]"
-                  >
-                    {Object.keys(tradeInBaseRates).map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
+                  <label htmlFor={`${ids}-trade-model`} className="field-label">Your current device</label>
+                  <select id={`${ids}-trade-model`} value={tradeModel} onChange={(e) => setTradeModel(e.target.value)} className="field">
+                    {Object.keys(TRADE_IN_RATES).map((m) => (
+                      <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Condition Evaluation */}
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                    Physical & Battery Condition
-                  </label>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {Object.entries(conditionMultipliers).map(([key, item]) => (
+                <fieldset>
+                  <legend className="field-label">Its condition</legend>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {Object.entries(CONDITIONS).map(([key, c]) => (
                       <button
                         key={key}
                         type="button"
+                        aria-pressed={tradeCondition === key}
                         onClick={() => setTradeCondition(key)}
-                        className={`p-3 rounded-xl text-left border transition-all ${
-                          tradeCondition === key
-                            ? 'bg-[#C9A24A]/15 border-[#C9A24A] text-white'
-                            : 'bg-neutral-900 border-white/5 text-neutral-300 hover:border-white/20'
-                        }`}
+                        className={cn(
+                          'min-h-[44px] rounded-control border p-3 text-left transition-colors',
+                          tradeCondition === key ? 'border-ink bg-surface' : 'border-line hover:border-line-strong'
+                        )}
                       >
-                        <p className="text-xs font-bold text-white flex items-center justify-between">
-                          <span>{item.label}</span>
-                          {tradeCondition === key && <CheckCircle2 className="w-3.5 h-3.5 text-[#C9A24A]" />}
-                        </p>
-                        <p className="text-[10px] text-neutral-400 mt-1 leading-snug">
-                          {item.desc}
-                        </p>
+                        <span className="block text-small font-semibold text-ink">{c.label}</span>
+                        <span className="mt-0.5 block text-caption text-ink-3">{c.desc}</span>
                       </button>
                     ))}
                   </div>
-                </div>
+                </fieldset>
 
-                {/* Target Upgrade Device */}
                 <div>
-                  <label htmlFor="trade-target-device" className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                    Upgrading To
-                  </label>
-                  <select
-                    id="trade-target-device"
-                    value={targetUpgradeId}
-                    onChange={(e) => setTargetUpgradeId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-white/10 text-white text-sm focus:outline-none focus:border-[#C9A24A]"
-                  >
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.condition}) - {formatINR(p.basePrice)}
-                      </option>
-                    ))}
+                  <label htmlFor={`${ids}-trade-target`} className="field-label">Buying</label>
+                  <select id={`${ids}-trade-target`} value={target?.id} onChange={(e) => setTargetId(e.target.value)} className="field">
+                    {emiProducts.map(option)}
                   </select>
                 </div>
               </div>
 
-              {/* Trade-in Result Card */}
-              <div className="lg:col-span-5 bg-gradient-to-b from-[#18181E] to-[#121215] border border-white/10 rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-6">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-[#C9A24A] mb-1">
-                    Total Estimated Trade Credit
-                  </p>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                    {formatINR(totalTradeInCredit)}
-                  </div>
-
-                  <div className="mt-6 space-y-2.5 text-xs text-neutral-300 border-t border-white/[0.08] pt-4">
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Device Valuation</span>
-                      <span className="font-semibold text-white">{formatINR(estimatedTradeInValue)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Festive Exchange Bonus</span>
-                      <span className="font-semibold text-emerald-400">+{formatINR(exchangeBonus)}</span>
-                    </div>
-                    <div className="flex justify-between pt-2 border-t border-white/[0.04]">
-                      <span className="text-neutral-400">Net Upgrade Price</span>
-                      <span className="font-bold text-[#C9A24A] text-sm">{formatINR(netUpgradeCost)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2 text-[11px] text-neutral-400 leading-snug bg-neutral-900/60 p-2.5 rounded-lg border border-white/[0.04]">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                    <span>
-                      Final valuation determined after 10-minute physical inspection in our store. Instant UPI payout or direct invoice adjustment.
-                    </span>
-                  </div>
-
-                  <a
-                    href={tradeInWhatsAppHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#C9A24A] hover:bg-[#b8913d] text-black font-semibold text-xs transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Get Exact Trade-In Quote via WhatsApp</span>
-                  </a>
-                </div>
+              <div className="flex flex-col rounded-control bg-subtle p-5" aria-live="polite">
+                <p className="text-small text-ink-3">Estimated credit</p>
+                <p className="tabular mt-1 text-title text-ink">{formatINR(credit)}</p>
+                <dl className="mt-4 text-small">
+                  <Row label="Your device" value={formatINR(tradeValue)} />
+                  <Row label="Exchange bonus" value={`+ ${formatINR(EXCHANGE_BONUS)}`} />
+                  <Row label="You pay" value={formatINR(netCost)} strong />
+                </dl>
+                <a href={tradeHref} target="_blank" rel="noopener noreferrer" className="btn-primary mt-6 w-full">
+                  <MessageCircle className="h-4 w-4" aria-hidden />
+                  Book a price check
+                </a>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </section>
   );

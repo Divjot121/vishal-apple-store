@@ -1,218 +1,98 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types';
 import { useStore } from '@/context/StoreContext';
-import { formatINR, buildWhatsAppLink } from '@/lib/utils';
-import {
-  ShieldCheck,
-  Scale,
-  MessageCircle,
-  Check,
-  ChevronRight,
-  BatteryMedium,
-  Zap,
-} from 'lucide-react';
+import { formatINR, buildWhatsAppLink, cn } from '@/lib/utils';
+import { CONDITION_LABEL, priceSummary, stockInfo, variantSummary } from '@/lib/catalog';
+import ProductImage from '@/components/ui/ProductImage';
+import { MessageCircle, Check, Plus } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
-  onQuickView?: (product: Product) => void;
+  /** above-the-fold cards can load eagerly */
+  priority?: boolean;
 }
 
-export default function ProductCard({ product, onQuickView }: ProductCardProps) {
-  const { settings, isInCompare, addToCompare, removeFromCompare } = useStore();
+const TONE = { ok: 'text-ok', warn: 'text-warn', bad: 'text-bad' } as const;
+
+export default function ProductCard({ product, priority = false }: ProductCardProps) {
+  const { settings, isInCompare, addToCompare, removeFromCompare, compareList } = useStore();
   const compared = isInCompare(product.id);
+  const compareFull = !compared && compareList.length >= 3;
 
-  // Default to first variant or product base
-  const activeVariant = product.variants[0];
-  const price = activeVariant ? activeVariant.price : product.basePrice;
-  const mrp = activeVariant ? activeVariant.mrp : product.mrp;
-  const savings = mrp > price ? mrp - price : 0;
+  const { price, mrp, from } = priceSummary(product);
+  const stock = stockInfo(product);
+  const battery = product.condition === 'Pre-owned' ? product.gradingReport?.batteryHealth : undefined;
 
-  // Total stock across variants
-  const totalStock = product.variants.reduce((acc, v) => acc + (v.stock || 0), 0);
-  const isOutOfStock = !product.inStock || totalStock === 0;
-
-  // WhatsApp Enquiry Link
   const whatsappHref = buildWhatsAppLink(
     settings.whatsappRaw,
-    `Hi Vishal Apple Store, I am inquiring about the ${product.name} (${product.condition}) priced at ${formatINR(price)}. Is it available in store today?`
+    `Hi, is the ${product.name} (${CONDITION_LABEL[product.condition].toLowerCase()}, ${formatINR(price)}) available today?`
   );
 
   return (
-    <div className="group relative rounded-2xl bg-[#141417] border border-white/[0.08] hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden hover:shadow-2xl hover:shadow-black/60">
-      {/* Top Media Area */}
-      <div className="relative p-5 pb-3">
-        {/* Badges Bar */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {/* Condition Badge */}
-            <span
-              className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                product.condition === 'New'
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                  : product.condition === 'Unboxed'
-                  ? 'bg-[#C9A24A]/15 text-[#C9A24A] border-[#C9A24A]/40'
-                  : 'bg-sky-500/10 text-sky-400 border-sky-500/30'
-              }`}
-            >
-              {product.condition === 'New' ? 'Brand New' : product.condition}
-            </span>
-
-            {/* Verified 40-Point Badge */}
-            {product.isVerified && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/[0.06] text-neutral-300 border border-white/10">
-                <ShieldCheck className="w-3 h-3 text-[#C9A24A]" />
-                <span>Verified</span>
-              </span>
-            )}
-          </div>
-
-          {/* Stock Status Pill */}
-          <div>
-            {isOutOfStock ? (
-              <span className="text-[10px] font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-full">
-                Out of Stock
-              </span>
-            ) : totalStock <= 2 ? (
-              <span className="text-[10px] font-semibold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full animate-pulse">
-                Only {totalStock} Left
-              </span>
-            ) : (
-              <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                In Stock
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Device Image Box */}
-        <Link
-          href={`/product/${product.slug}`}
-          className="block relative w-full h-52 bg-[#0D0D10] rounded-xl p-4 overflow-hidden focus:outline-none group-hover:scale-[1.01] transition-transform"
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
-          <Image
-            src={product.images[0] || '/devices/iphone-16-pro-natural.png'}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-contain p-2 drop-shadow-[0_12px_24px_rgba(0,0,0,0.7)]"
-          />
-        </Link>
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface transition-colors duration-150 hover:border-line-strong">
+      <div className="relative">
+        <ProductImage
+          product={product}
+          priority={priority}
+          labelled={false}
+          rounded="rounded-none"
+          sizes="(max-width: 767px) 46vw, (max-width: 1023px) 31vw, 280px"
+        />
+        <span className="absolute left-2.5 top-2.5 rounded-full bg-surface px-2.5 py-1 text-caption font-medium text-ink-2 shadow-sm">
+          {CONDITION_LABEL[product.condition]}
+        </span>
       </div>
 
-      {/* Details & Specs Area */}
-      <div className="p-5 pt-0 flex-1 flex flex-col justify-between">
-        <div>
-          {/* Subtitle / Model */}
-          <div className="flex items-center justify-between text-xs text-neutral-400 mb-1">
-            <span>{product.category}</span>
-            {product.gradingReport?.batteryHealth && (
-              <span className="inline-flex items-center gap-1 text-[#C9A24A] font-medium">
-                <BatteryMedium className="w-3.5 h-3.5" />
-                {product.gradingReport.batteryHealth}% Battery
-              </span>
-            )}
-          </div>
-
-          {/* Title */}
-          <Link href={`/product/${product.slug}`} className="block focus:outline-none">
-            <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#C9A24A] transition-colors leading-snug line-clamp-1">
-              {product.name}
-            </h3>
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
+        <h3 className="line-clamp-2 text-[0.9375rem] font-semibold leading-[1.3] text-ink sm:text-base">
+          {/* stretched link: the whole card opens the product */}
+          <Link href={`/product/${product.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:rounded-card focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-[rgb(var(--focus))]">
+            {product.name}
           </Link>
+        </h3>
+        <p className="mt-1 line-clamp-2 text-caption text-ink-3">{variantSummary(product)}</p>
 
-          {/* Tagline */}
-          <p className="text-xs text-neutral-400 mt-1 line-clamp-1">
-            {product.tagline}
+        <div className="mt-auto pt-3">
+          <p className="tabular flex flex-wrap items-baseline gap-x-1.5 text-ink">
+            {from && <span className="text-caption text-ink-3">from</span>}
+            <span className="text-[1.0625rem] font-semibold sm:text-lg">{formatINR(price)}</span>
+            {mrp > price && <span className="text-caption text-ink-3 line-through">{formatINR(mrp)}</span>}
+          </p>
+          <p className="mt-0.5 text-caption">
+            <span className={cn('font-medium', TONE[stock.tone])}>{stock.label}</span>
+            {battery ? <span className="text-ink-3"> · Battery {battery}%</span> : null}
           </p>
 
-          {/* Hardware highlights snippet */}
-          <div className="mt-3 py-2 px-2.5 rounded-lg bg-neutral-900/60 border border-white/[0.04] text-[11px] text-neutral-300 space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-neutral-400">Chip</span>
-              <span className="font-medium text-white truncate max-w-[170px] text-right">
-                {product.specs.chip}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-neutral-400">Storage</span>
-              <span className="font-medium text-neutral-200">
-                {product.variants.map((v) => v.storage).join(', ')}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing & CTA Actions */}
-        <div className="mt-4 pt-3 border-t border-white/[0.08]">
-          <div className="flex items-baseline justify-between mb-3">
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-bold text-white tracking-tight">
-                  {formatINR(price)}
-                </span>
-                {mrp > price && (
-                  <span className="text-xs text-neutral-400 line-through">
-                    {formatINR(mrp)}
-                  </span>
-                )}
-              </div>
-              {savings > 0 && (
-                <span className="text-[10px] font-semibold text-emerald-400">
-                  Save {formatINR(savings)} vs MRP
-                </span>
-              )}
-            </div>
-
-            {/* Compare Toggle Button */}
+          <div className="relative z-10 mt-3 flex items-center gap-1.5 border-t border-line pt-3 sm:gap-2">
             <button
               type="button"
-              onClick={() => {
-                if (compared) {
-                  removeFromCompare(product.id);
-                } else {
-                  addToCompare(product);
-                }
-              }}
-              className={`p-2 rounded-lg border text-xs font-medium transition-colors ${
-                compared
-                  ? 'bg-[#C9A24A] text-black border-[#C9A24A]'
-                  : 'bg-neutral-900 border-white/10 text-neutral-400 hover:text-white hover:border-white/20'
-              }`}
-              title={compared ? 'Remove from compare' : 'Add to compare'}
-              aria-label={compared ? 'Remove from compare' : 'Add to compare'}
+              onClick={() => (compared ? removeFromCompare(product.id) : addToCompare(product))}
+              disabled={compareFull}
+              aria-pressed={compared}
+              title={compareFull ? 'You can compare up to 3 devices' : undefined}
+              className={cn(
+                'inline-flex min-h-[44px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border px-2 text-caption font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                compared ? 'border-ink bg-ink text-canvas' : 'border-line text-ink-2 hover:border-line-strong hover:text-ink'
+              )}
             >
-              <Scale className="w-4 h-4" />
+              {compared ? <Check className="hidden h-3.5 w-3.5 shrink-0 sm:block" aria-hidden /> : <Plus className="hidden h-3.5 w-3.5 shrink-0 sm:block" aria-hidden />}
+              Compare
             </button>
-          </div>
-
-          {/* Action Row */}
-          <div className="grid grid-cols-2 gap-2">
-            <Link
-              href={`/product/${product.slug}`}
-              className="py-2.5 px-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-white/10 text-white font-medium text-xs text-center transition-colors flex items-center justify-center gap-1"
-            >
-              <span>View Specs</span>
-              <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
-            </Link>
-
             <a
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="py-2.5 px-3 rounded-xl bg-[#1D1D22] hover:bg-[#25252B] border border-[#C9A24A]/40 text-white font-semibold text-xs text-center transition-colors flex items-center justify-center gap-1.5 group/btn"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line text-ink-2 transition-colors hover:border-ink hover:text-ink"
+              aria-label={`Ask about ${product.name} on WhatsApp`}
             >
-              <MessageCircle className="w-3.5 h-3.5 text-[#C9A24A] group-hover/btn:scale-110 transition-transform" />
-              <span>Enquire</span>
+              <MessageCircle className="h-4 w-4" aria-hidden />
             </a>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
