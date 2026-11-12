@@ -1,62 +1,50 @@
 'use client';
 
-import React, { useState, useMemo, use } from 'react';
-import Image from 'next/image';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
 import { useStore } from '@/context/StoreContext';
-import { formatINR, buildWhatsAppLink } from '@/lib/utils';
-import {
-  ShieldCheck,
-  BatteryMedium,
-  Check,
-  Scale,
-  MessageCircle,
-  Calendar,
-  Clock,
-  ArrowLeft,
-  Share2,
-  Sparkles,
-  ChevronRight,
-  X,
-  FileCheck2,
-} from 'lucide-react';
+import { formatINR, buildWhatsAppLink, cn, isValidIndianMobile } from '@/lib/utils';
+import { CONDITION_LABEL, CONDITION_NOTE } from '@/lib/catalog';
 import ProductCard from '@/components/store/ProductCard';
+import ProductImage from '@/components/ui/ProductImage';
+import Modal from '@/components/ui/Modal';
+import { MessageCircle, Check, Plus, ChevronRight } from 'lucide-react';
+
+function formatDate(iso?: string) {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
 
 export default function ProductDetailClient({ slug }: { slug: string }) {
   const { products, settings, isInCompare, addToCompare, removeFromCompare, submitEnquiry } = useStore();
 
-  // Find product by slug
-  const product = useMemo(() => {
-    return products.find((p) => p.slug.toLowerCase() === slug?.toLowerCase());
-  }, [products, slug]);
+  const product = useMemo(
+    () => products.find((p) => p.slug.toLowerCase() === slug?.toLowerCase()),
+    [products, slug]
+  );
 
-  // Variant Selection State
   const [selectedStorage, setSelectedStorage] = useState<string>('');
   const [selectedColour, setSelectedColour] = useState<string>('');
-  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
-  // Reservation Modal State
-  const [reserveModalOpen, setReserveModalOpen] = useState(false);
+  // Reserve form
+  const [reserveOpen, setReserveOpen] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [visitDate, setVisitDate] = useState('');
-  const [visitTime, setVisitTime] = useState('4:00 PM');
+  const [visitTime, setVisitTime] = useState('Evening (5–8 pm)');
+  const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reservationSuccess, setReservationSuccess] = useState<string | null>(null);
+  const [reservationCode, setReservationCode] = useState<string | null>(null);
 
-  // Initialize selected variant
-  const initialVariant = product?.variants[0];
-  const currentStorage = selectedStorage || initialVariant?.storage || '';
-  const currentColour = selectedColour || initialVariant?.colour || '';
+  const first = product?.variants[0];
+  const currentStorage = selectedStorage || first?.storage || '';
+  const currentColour = selectedColour || first?.colour || '';
 
-  // Find exact matching variant
   const currentVariant = useMemo(() => {
     if (!product) return null;
     return (
-      product.variants.find(
-        (v) => v.storage === currentStorage && v.colour === currentColour
-      ) ||
+      product.variants.find((v) => v.storage === currentStorage && v.colour === currentColour) ||
       product.variants.find((v) => v.storage === currentStorage) ||
       product.variants[0]
     );
@@ -64,16 +52,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   if (!product) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
-        <h2 className="text-2xl font-bold text-white">Device Not Found</h2>
-        <p className="text-sm text-neutral-400">
-          The requested device lot may have been sold or moved in inventory.
-        </p>
-        <Link
-          href="/#catalog"
-          className="px-6 py-2.5 rounded-full bg-[#C9A24A] text-black font-semibold text-xs"
-        >
-          Return to Catalog
+      <div className="wrap flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
+        <h1 className="text-title">This device isn&rsquo;t listed any more</h1>
+        <p className="mt-3 max-w-prose text-ink-2">It has probably been sold. Have a look at what&rsquo;s in stock, or ask us if we can get another.</p>
+        <Link href="/#catalog" className="btn-primary mt-6">
+          See what&rsquo;s in stock
         </Link>
       </div>
     );
@@ -82,543 +65,337 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   const price = currentVariant ? currentVariant.price : product.basePrice;
   const mrp = currentVariant ? currentVariant.mrp : product.mrp;
   const savings = mrp > price ? mrp - price : 0;
-  const inStock = (currentVariant?.stock || 0) > 0 && product.inStock;
+  const unitStock = currentVariant?.stock || 0;
+  const inStock = unitStock > 0 && product.inStock;
   const compared = isInCompare(product.id);
+  const storages = Array.from(new Set(product.variants.map((v) => v.storage)));
+  const colours = Array.from(new Set(product.variants.map((v) => v.colour)));
+  const report = product.gradingReport;
+  const isPreOwned = product.condition === 'Pre-owned';
 
-  // Distinct storages and colours for selectors
-  const uniqueStorages = Array.from(new Set(product.variants.map((v) => v.storage)));
-  const uniqueColours = Array.from(new Set(product.variants.map((v) => v.colour)));
-
-  // WhatsApp Pre-filled message per requirements:
   const whatsappHref = buildWhatsAppLink(
     settings.whatsappRaw,
-    `Hi Vishal Apple Store, I am interested in purchasing ${product.name} (${currentVariant?.storage || 'Standard'}, ${currentVariant?.colour || 'Standard'}) listed for ${formatINR(price)} in ${product.condition} condition. Is it available in store today?`
+    `Hi, is the ${product.name} (${[currentVariant?.storage, currentVariant?.colour].filter((x) => x && x !== 'Standard').join(', ')}, ${CONDITION_LABEL[product.condition].toLowerCase()}) at ${formatINR(price)} available today?`
   );
 
-  // Handle Reservation
   const handleReserve = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName.trim() || !customerPhone.trim()) return;
-
+    const errs: typeof errors = {};
+    if (!customerName.trim()) errs.name = 'Please enter your name.';
+    if (!isValidIndianMobile(customerPhone)) errs.phone = 'Enter a 10-digit mobile number, e.g. 98765 43210.';
+    setErrors(errs);
+    if (Object.keys(errs).length) {
+      document.getElementById(errs.name ? 'res-name' : 'res-phone')?.focus();
+      return;
+    }
     setIsSubmitting(true);
-    const code = `RES-${Math.floor(100000 + Math.random() * 900000)}`;
+    const code = `VAS-${Math.floor(1000 + Math.random() * 9000)}`;
     try {
       await submitEnquiry({
-        customerName,
-        phone: customerPhone,
+        customerName: customerName.trim(),
+        phone: customerPhone.trim(),
         type: 'product_reserve',
         productId: product.id,
         productName: product.name,
         variantDetails: `${currentVariant?.storage} - ${currentVariant?.colour}`,
         quotedPrice: price,
-        message: `Customer reserved ${product.name} (${currentVariant?.storage}, ${currentVariant?.colour}) for store visit on ${visitDate || 'Today'} at ${visitTime}. Hold reference: ${code}.`,
+        message: `Hold ${product.name} (${currentVariant?.storage}, ${currentVariant?.colour}) for a visit on ${visitDate || 'today'}, ${visitTime}. Ref ${code}.`,
         status: 'New',
         details: { reservationCode: code, visitDate, visitTime },
       });
-      setReservationSuccess(code);
-    } catch (err) {
-      console.error(err);
+      setReservationCode(code);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Related devices in same category
-  const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 3);
+  const related = products
+    .filter((p) => p.isVisible && p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
+
+  const specs: [string, string | undefined][] = [
+    ['Chip', product.specs.chip],
+    ['Display', product.specs.display],
+    ['Camera', product.specs.camera],
+    ['Battery life', product.specs.battery],
+    ['Port', product.specs.port],
+    ['Unlock', product.specs.biometrics],
+    ['Weight', product.specs.weight],
+    ['Warranty', product.specs.warranty],
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-6 pb-24">
-      {/* Breadcrumb Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="flex items-center gap-2 text-xs text-neutral-400">
-          <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Storefront</span>
-          </Link>
-          <span>/</span>
-          <Link href="/#catalog" className="hover:text-white transition-colors">
-            {product.category}
-          </Link>
-          <span>/</span>
-          <span className="text-neutral-200 truncate font-medium">{product.name}</span>
-        </div>
-      </div>
+    <div className="pb-20 pt-6">
+      <nav aria-label="Breadcrumb" className="wrap">
+        <ol className="flex flex-wrap items-center gap-1 text-small text-ink-3">
+          <li>
+            <Link href="/" className="inline-flex min-h-[44px] items-center hover:text-ink">Home</Link>
+          </li>
+          <li className="flex items-center gap-1">
+            <ChevronRight className="h-4 w-4" aria-hidden />
+            <Link href="/#catalog" className="inline-flex min-h-[44px] items-center hover:text-ink">{product.category}</Link>
+          </li>
+          <li aria-current="page" className="flex min-w-0 items-center gap-1 font-medium text-ink-2">
+            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+            <span className="truncate">{product.name}</span>
+          </li>
+        </ol>
+      </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Left Column: Image Gallery & Previews */}
-          <div className="lg:col-span-7 space-y-4">
-            {/* Primary Visual Stage */}
-            <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] bg-[#121215] border border-white/[0.08] rounded-3xl p-8 flex items-center justify-center overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-b from-[#C9A24A]/5 via-transparent to-black/60 pointer-events-none" />
-
-              {/* Badges on stage */}
-              <div className="absolute top-6 left-6 flex items-center gap-2 z-10">
-                <span
-                  className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${
-                    product.condition === 'New'
-                      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                      : product.condition === 'Unboxed'
-                      ? 'bg-[#C9A24A]/15 text-[#C9A24A] border-[#C9A24A]/40'
-                      : 'bg-sky-500/15 text-sky-400 border-sky-500/30'
-                  }`}
-                >
-                  {product.condition === 'New' ? 'Brand New Sealed' : product.condition}
-                </span>
-
-                {product.isVerified && (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/10">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#C9A24A]" />
-                    <span>40-Point Screened</span>
-                  </span>
-                )}
-              </div>
-
-              {/* Main Device Vector Image */}
-              <div className="relative w-full h-full max-h-[420px] transition-transform duration-500 group-hover:scale-[1.03]">
-                <Image
-                  src={product.images[activeImageIndex] || product.images[0]}
-                  alt={product.name}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 55vw"
-                  className="object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)]"
-                />
-              </div>
-            </div>
-
-            {/* Multi-angle & Color Gallery Strip */}
-            {product.images && product.images.length > 1 && (
-              <div className="flex items-center gap-3 overflow-x-auto py-1">
-                {product.images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setActiveImageIndex(idx)}
-                    className={`relative w-20 h-20 rounded-2xl p-2 border transition-all flex-shrink-0 ${
-                      activeImageIndex === idx
-                        ? 'border-[#C9A24A] bg-[#1a1a20] shadow-md scale-105 ring-1 ring-[#C9A24A]'
-                        : 'border-white/10 bg-[#121215] hover:border-white/20'
-                    }`}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${product.name} angle ${idx + 1}`}
-                      fill
-                      className="object-contain p-1"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Condition & Diagnostic Inspection Report Accordion */}
-            {product.gradingReport && (
-              <div className="rounded-2xl bg-[#141418] border border-white/[0.08] p-5 sm:p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-                  <div className="flex items-center gap-2">
-                    <FileCheck2 className="w-4 h-4 text-[#C9A24A]" />
-                    <h3 className="text-sm font-bold text-white tracking-tight">
-                      Vishal Store Grading & Diagnostics Report
-                    </h3>
-                  </div>
-                  <span className="text-[11px] text-neutral-400">
-                    Inspected: {product.gradingReport.inspectionDate || 'Recent lot'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-neutral-900/60 border border-white/[0.04]">
-                    <span className="text-neutral-400 block text-[11px]">Battery Capacity</span>
-                    <span className="text-sm font-bold text-[#C9A24A] mt-0.5 block">
-                      {product.gradingReport.batteryHealth}% Max Health
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-neutral-900/60 border border-white/[0.04]">
-                    <span className="text-neutral-400 block text-[11px]">Cosmetic Rating</span>
-                    <span className="text-sm font-bold text-white mt-0.5 block">
-                      {product.gradingReport.cosmeticScore}
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-neutral-900/60 border border-white/[0.04] col-span-2 sm:col-span-1">
-                    <span className="text-neutral-400 block text-[11px]">Store Warranty</span>
-                    <span className="text-sm font-bold text-emerald-400 mt-0.5 block">
-                      {product.specs.warranty}
-                    </span>
-                  </div>
-                </div>
-
-                {product.gradingReport.accessoriesIncluded && (
-                  <div className="text-xs text-neutral-300 pt-1">
-                    <span className="text-neutral-400 font-medium block mb-1">
-                      Box & Accessories Included:
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {product.gradingReport.accessoriesIncluded.map((acc, i) => (
-                        <span
-                          key={i}
-                          className="px-2.5 py-1 rounded-lg bg-neutral-900 text-neutral-200 border border-white/[0.06] text-[11px]"
-                        >
-                          ✓ {acc}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+      <div className="wrap mt-4 grid gap-8 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-14 lg:gap-y-6">
+        {/* Image */}
+        <div className="lg:col-span-7">
+          <div className="relative">
+            <ProductImage
+              product={product}
+              finish={currentVariant?.colorHex}
+              priority
+              rounded="rounded-card"
+              sizes="(max-width: 1024px) 92vw, 640px"
+            />
+            <span className="absolute left-4 top-4 rounded-full bg-surface px-3 py-1.5 text-small font-medium text-ink-2 shadow-sm">
+              {CONDITION_LABEL[product.condition]}
+            </span>
           </div>
+        </div>
 
-          {/* Right Column: Configuration, Pricing & Actions */}
-          <div className="lg:col-span-5 space-y-6">
-            <div>
-              {/* Tagline */}
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#C9A24A] mb-1">
-                {product.deviceModel}
+        {/* Buy box: second on phones, right-hand column on desktop */}
+        <div className="lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
+          <div className="lg:sticky lg:top-32">
+            <p className="eyebrow">{CONDITION_NOTE[product.condition]}</p>
+            <h1 className="mt-3 text-title">{product.name}</h1>
+            <p className="mt-3 max-w-prose text-ink-2">{product.description}</p>
+
+            <div className="mt-6 border-y border-line py-5">
+              <p className="tabular flex flex-wrap items-baseline gap-x-3 text-ink">
+                <span className="text-title">{formatINR(price)}</span>
+                {mrp > price && <span className="text-ink-3 line-through">{formatINR(mrp)}</span>}
               </p>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                {product.name}
-              </h1>
-              <p className="text-sm text-neutral-400 mt-2 leading-relaxed">
-                {product.description}
+              <p className="mt-1 text-small text-ink-3">
+                {savings > 0 ? `${formatINR(savings)} under MRP · ` : ''}GST included
+              </p>
+              <p className={cn('mt-2 text-small font-semibold', inStock ? (unitStock <= 2 ? 'text-warn' : 'text-ok') : 'text-bad')}>
+                {inStock ? (unitStock <= 2 ? `Only ${unitStock} left in this option` : 'In stock in the shop') : 'Sold out in this option, ask us for the next one'}
               </p>
             </div>
 
-            {/* Price Box */}
-            <div className="p-5 rounded-2xl bg-[#141418] border border-white/[0.08] space-y-2">
-              <div className="flex items-baseline gap-3">
-                <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                  {formatINR(price)}
-                </span>
-                {mrp > price && (
-                  <span className="text-sm text-neutral-400 line-through">
-                    {formatINR(mrp)}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center justify-between text-xs pt-1">
-                {savings > 0 ? (
-                  <span className="font-semibold text-emerald-400">
-                    Net Savings: {formatINR(savings)} off retail MRP
-                  </span>
-                ) : (
-                  <span className="text-neutral-400">Inclusive of all applicable GST</span>
-                )}
-
-                <span
-                  className={`font-semibold ${
-                    inStock ? 'text-emerald-400' : 'text-rose-400'
-                  }`}
-                >
-                  {inStock ? `● In Stock (${currentVariant?.stock} units available)` : '● Currently Reserved'}
-                </span>
-              </div>
-            </div>
-
-            {/* Variant 1: Storage Selector */}
-            {uniqueStorages.length > 0 && uniqueStorages[0] !== 'Standard' && (
-              <div className="space-y-2.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
-                  Select Storage Capacity
-                </label>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {uniqueStorages.map((storage) => {
-                    const isSelected = currentStorage === storage;
-                    const matchVar = product.variants.find((v) => v.storage === storage);
-
+            {storages.length > 1 || (storages[0] && storages[0] !== 'Standard') ? (
+              <fieldset className="mt-6">
+                <legend className="field-label">Storage</legend>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {storages.map((s) => {
+                    const v = product.variants.find((x) => x.storage === s);
                     return (
                       <button
-                        key={storage}
+                        key={s}
                         type="button"
-                        onClick={() => setSelectedStorage(storage)}
-                        className={`p-3 rounded-xl border text-center transition-all ${
-                          isSelected
-                            ? 'bg-white text-black border-white shadow-lg'
-                            : 'bg-[#141417] text-neutral-300 border-white/10 hover:border-white/25'
-                        }`}
-                      >
-                        <p className="text-xs font-bold">{storage}</p>
-                        {matchVar && (
-                          <p
-                            className={`text-[10px] mt-0.5 ${
-                              isSelected ? 'text-neutral-700' : 'text-neutral-400'
-                            }`}
-                          >
-                            {formatINR(matchVar.price)}
-                          </p>
+                        aria-pressed={currentStorage === s}
+                        onClick={() => setSelectedStorage(s)}
+                        className={cn(
+                          'min-h-[52px] rounded-control border px-3 py-2 text-left transition-colors',
+                          currentStorage === s ? 'border-ink bg-surface ring-1 ring-ink' : 'border-line hover:border-line-strong'
                         )}
+                      >
+                        <span className="block text-small font-semibold text-ink">{s}</span>
+                        {v && <span className="tabular block text-caption text-ink-3">{formatINR(v.price)}</span>}
                       </button>
                     );
                   })}
                 </div>
-              </div>
-            )}
+              </fieldset>
+            ) : null}
 
-            {/* Variant 2: Colour Selector */}
-            {uniqueColours.length > 0 && uniqueColours[0] !== 'Standard' && (
-              <div className="space-y-2.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
-                  Select Finish / Colour:{' '}
-                  <span className="text-[#C9A24A] font-bold ml-1">{currentColour}</span>
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {uniqueColours.map((colour) => {
-                    const isSelected = currentColour === colour;
-                    const variantObj = product.variants.find((v) => v.colour === colour);
-                    const hex = variantObj?.colorHex || '#555';
-
+            {colours.length > 0 && colours[0] !== 'Standard' && (
+              <fieldset className="mt-6">
+                <legend className="field-label">
+                  Colour: <span className="font-normal text-ink-2">{currentColour}</span>
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {colours.map((c) => {
+                    const hex = product.variants.find((v) => v.colour === c)?.colorHex || '#999';
                     return (
                       <button
-                        key={colour}
+                        key={c}
                         type="button"
-                        onClick={() => setSelectedColour(colour)}
-                        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-medium transition-all ${
-                          isSelected
-                            ? 'bg-[#1C1C22] border-[#C9A24A] text-white shadow-sm'
-                            : 'bg-[#141417] border-white/10 text-neutral-300 hover:border-white/25'
-                        }`}
+                        aria-pressed={currentColour === c}
+                        onClick={() => setSelectedColour(c)}
+                        className="chip"
                       >
-                        <span
-                          className="w-3.5 h-3.5 rounded-full border border-white/30 shrink-0"
-                          style={{ backgroundColor: hex }}
-                        />
-                        <span>{colour}</span>
+                        <span className="h-4 w-4 shrink-0 rounded-full border border-line-strong" style={{ backgroundColor: hex }} aria-hidden />
+                        {c}
                       </button>
                     );
                   })}
                 </div>
-              </div>
+              </fieldset>
             )}
 
-            {/* Primary Action Buttons */}
-            <div className="space-y-3 pt-2">
-              {/* WhatsApp Enquire CTA (Pre-filled with device details) */}
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-[#C9A24A] hover:bg-[#b8913d] text-black font-bold text-sm transition-all duration-200 shadow-xl active:scale-95 group"
-              >
-                <MessageCircle className="w-5 h-5 text-black group-hover:scale-110 transition-transform" />
-                <span>Enquire on WhatsApp</span>
+            <div className="mt-8 grid gap-3">
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="btn-primary min-h-[52px] text-base">
+                <MessageCircle className="h-5 w-5" aria-hidden />
+                Ask on WhatsApp
               </a>
-
-              {/* Reserve / Visit Store Modal Trigger */}
-              <button
-                type="button"
-                onClick={() => setReserveModalOpen(true)}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#16161A] hover:bg-[#202026] text-white font-semibold text-xs border border-white/10 hover:border-white/20 transition-all active:scale-95"
-              >
-                <Calendar className="w-4 h-4 text-[#C9A24A]" />
-                <span>Reserve for Store Inspection</span>
-              </button>
-
-              {/* Compare Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (compared) {
-                    removeFromCompare(product.id);
-                  } else {
-                    addToCompare(product);
-                  }
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-transparent hover:bg-neutral-900 text-neutral-400 hover:text-white text-xs border border-white/5 transition-colors"
-              >
-                <Scale className="w-3.5 h-3.5 text-[#C9A24A]" />
-                <span>{compared ? 'Remove from Comparison Dock' : 'Add to Device Comparison'}</span>
-              </button>
-            </div>
-
-            {/* Tech Specs Detailed Table */}
-            <div className="pt-6 border-t border-white/[0.08] space-y-3">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-200">
-                Hardware Specifications
-              </h3>
-              <div className="divide-y divide-white/[0.04] text-xs">
-                <div className="py-2 flex justify-between">
-                  <span className="text-neutral-400">Processor</span>
-                  <span className="font-medium text-white">{product.specs.chip}</span>
-                </div>
-                <div className="py-2 flex justify-between">
-                  <span className="text-neutral-400">Display</span>
-                  <span className="font-medium text-white text-right max-w-[240px]">
-                    {product.specs.display}
-                  </span>
-                </div>
-                {product.specs.camera && (
-                  <div className="py-2 flex justify-between">
-                    <span className="text-neutral-400">Camera</span>
-                    <span className="font-medium text-white text-right max-w-[240px]">
-                      {product.specs.camera}
-                    </span>
-                  </div>
-                )}
-                <div className="py-2 flex justify-between">
-                  <span className="text-neutral-400">Battery Endurance</span>
-                  <span className="font-medium text-white">{product.specs.battery}</span>
-                </div>
-                <div className="py-2 flex justify-between">
-                  <span className="text-neutral-400">Ports</span>
-                  <span className="font-medium text-white">{product.specs.port}</span>
-                </div>
-                <div className="py-2 flex justify-between">
-                  <span className="text-neutral-400">Biometrics</span>
-                  <span className="font-medium text-white">{product.specs.biometrics}</span>
-                </div>
-                <div className="py-2 flex justify-between">
-                  <span className="text-neutral-400">Weight</span>
-                  <span className="font-medium text-white">{product.specs.weight}</span>
-                </div>
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => setReserveOpen(true)} className="btn-quiet">
+                  Hold it for my visit
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={compared}
+                  onClick={() => (compared ? removeFromCompare(product.id) : addToCompare(product))}
+                  className="btn-quiet"
+                >
+                  {compared ? <Check className="h-4 w-4" aria-hidden /> : <Plus className="h-4 w-4" aria-hidden />}
+                  Compare
+                </button>
               </div>
+              <p className="text-caption text-ink-3">
+                Or call <a href={`tel:${settings.phoneRaw}`} className="font-medium text-ink underline underline-offset-2">{settings.phone}</a>. Open Mon–Sat 10:30 am – 9 pm, Sun 11:30 am – 8 pm.
+              </p>
             </div>
+
+            <section aria-labelledby="specs-title" className="mt-10">
+              <h2 id="specs-title" className="eyebrow">Specifications</h2>
+              <dl className="mt-3 divide-y divide-line border-y border-line text-small">
+                {specs
+                  .filter(([, v]) => v && v !== 'N/A')
+                  .map(([k, v]) => (
+                    <div key={k} className="grid grid-cols-[7rem_1fr] gap-4 py-2.5">
+                      <dt className="text-ink-3">{k}</dt>
+                      <dd className="text-ink">{v}</dd>
+                    </div>
+                  ))}
+              </dl>
+            </section>
           </div>
         </div>
 
-        {/* Related Products Carousel */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-20 pt-12 border-t border-white/[0.08]">
-            <h2 className="text-2xl font-bold text-white mb-6">
-              Alternative {product.category} Models
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedProducts.map((rel) => (
-                <ProductCard key={rel.id} product={rel} />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Grading report */}
+        <div className="lg:col-span-7 lg:col-start-1 lg:row-start-2">
+          {report && (
+            <section aria-labelledby="report-title" className="rounded-card border border-line bg-surface">
+              <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4">
+                <h2 id="report-title" className="text-subtitle">
+                  {isPreOwned ? 'Our check on this unit' : 'What’s in the box'}
+                </h2>
+                {report.inspectionDate && <p className="text-caption text-ink-3">Checked {formatDate(report.inspectionDate)}</p>}
+              </div>
+              <dl className="tabular divide-y divide-line text-small">
+                {isPreOwned && report.batteryHealth && (
+                  <div className="grid grid-cols-[7.5rem_1fr] gap-4 px-5 py-3">
+                    <dt className="text-ink-3">Battery health</dt>
+                    <dd className="text-right font-medium text-ink">{report.batteryHealth}%</dd>
+                  </div>
+                )}
+                <div className="grid grid-cols-[7.5rem_1fr] gap-4 px-5 py-3">
+                  <dt className="text-ink-3">Condition</dt>
+                  <dd className="text-right font-medium text-ink">{report.cosmeticScore}</dd>
+                </div>
+                <div className="grid grid-cols-[7.5rem_1fr] gap-4 px-5 py-3">
+                  <dt className="text-ink-3">Warranty</dt>
+                  <dd className="text-right font-medium text-ink">{product.specs.warranty}</dd>
+                </div>
+                {report.accessoriesIncluded?.length > 0 && (
+                  <div className="grid grid-cols-[7.5rem_1fr] gap-4 px-5 py-3">
+                    <dt className="text-ink-3">In the box</dt>
+                    <dd className="text-right text-ink">{report.accessoriesIncluded.join(', ')}</dd>
+                  </div>
+                )}
+              </dl>
+              {report.technicianNotes && (
+                <p className="border-t border-line px-5 py-4 text-small text-ink-2">
+                  <span className="font-medium text-ink">Note from the bench: </span>
+                  {report.technicianNotes}
+                </p>
+              )}
+            </section>
+          )}
+        </div>
+
       </div>
 
-      {/* Reservation Modal (Native accessible overlay) */}
-      {reserveModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div
-            className="w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl p-6 shadow-2xl relative"
-            onClick={(e) => e.stopPropagation()}
-          >
+      {related.length > 0 && (
+        <section aria-labelledby="related-title" className="wrap mt-20 border-t border-line pt-12">
+          <h2 id="related-title" className="text-subtitle">Other {product.category === 'Accessories' ? 'accessories' : `${product.category} models`} in the shop</h2>
+          <ul className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+            {related.map((rel) => (
+              <li key={rel.id}>
+                <ProductCard product={rel} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <Modal
+        open={reserveOpen}
+        onClose={() => {
+          setReserveOpen(false);
+          setReservationCode(null);
+        }}
+        title={`Hold ${product.name}`}
+      >
+        {reservationCode ? (
+          <div role="status">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-ok/10 text-ok">
+              <Check className="h-5 w-5" aria-hidden />
+            </span>
+            <h2 className="mt-4 text-subtitle">We&rsquo;ll keep it aside</h2>
+            <p className="mt-2 text-ink-2">
+              Your reference is <span className="font-mono font-semibold text-ink">{reservationCode}</span>. We&rsquo;ll hold the{' '}
+              {product.name} ({currentVariant?.storage}) until closing time on {visitDate ? formatDate(visitDate) : 'the day you come'}, and send a
+              WhatsApp to confirm.
+            </p>
             <button
               type="button"
               onClick={() => {
-                setReserveModalOpen(false);
-                setReservationSuccess(null);
+                setReserveOpen(false);
+                setReservationCode(null);
               }}
-              className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-white rounded-full bg-neutral-800"
-              aria-label="Close modal"
+              className="btn-primary mt-6 w-full"
             >
-              <X className="w-4 h-4" />
+              Done
             </button>
-
-            {reservationSuccess ? (
-              <div className="py-6 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/30">
-                  <Check className="w-6 h-6" />
-                </div>
-                <h3 className="text-lg font-bold text-white">Unit Held Successfully!</h3>
-                <p className="text-xs text-neutral-400 leading-relaxed">
-                  Your reservation reference is{' '}
-                  <span className="font-mono font-bold text-[#C9A24A]">
-                    {reservationSuccess}
-                  </span>
-                  . We will hold this {product.name} ({currentVariant?.storage}) at our Ranjit Avenue, Amritsar store until {visitDate || 'tomorrow'}.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setReserveModalOpen(false);
-                    setReservationSuccess(null);
-                  }}
-                  className="mt-4 px-6 py-2.5 rounded-xl bg-[#C9A24A] text-black font-semibold text-xs"
-                >
-                  Done
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleReserve} className="space-y-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#C9A24A] block mb-1">
-                    Store Hold Request
-                  </span>
-                  <h3 className="text-lg font-bold text-white">
-                    Reserve {product.name}
-                  </h3>
-                  <p className="text-xs text-neutral-400">
-                    Selected: {currentVariant?.storage} · {currentVariant?.colour} ({formatINR(price)})
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="res-name" className="block text-xs font-medium text-neutral-300 mb-1">
-                    Your Name *
-                  </label>
-                  <input
-                    id="res-name"
-                    type="text"
-                    required
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="e.g. Vikram Malhotra"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-white/10 text-white text-sm focus:outline-none focus:border-[#C9A24A]"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="res-phone" className="block text-xs font-medium text-neutral-300 mb-1">
-                    Mobile / WhatsApp *
-                  </label>
-                  <input
-                    id="res-phone"
-                    type="tel"
-                    required
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-white/10 text-white text-sm focus:outline-none focus:border-[#C9A24A]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label htmlFor="res-date" className="block text-xs font-medium text-neutral-300 mb-1">
-                      Preferred Date
-                    </label>
-                    <input
-                      id="res-date"
-                      type="date"
-                      value={visitDate}
-                      onChange={(e) => setVisitDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-white/10 text-white text-xs focus:outline-none focus:border-[#C9A24A]"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="res-time" className="block text-xs font-medium text-neutral-300 mb-1">
-                      Preferred Time
-                    </label>
-                    <input
-                      id="res-time"
-                      type="text"
-                      value={visitTime}
-                      onChange={(e) => setVisitTime(e.target.value)}
-                      placeholder="e.g. 4:00 PM"
-                      className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-white/10 text-white text-xs focus:outline-none focus:border-[#C9A24A]"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 rounded-xl bg-[#C9A24A] hover:bg-[#b8913d] text-black font-semibold text-sm transition-colors mt-2"
-                >
-                  {isSubmitting ? 'Confirming...' : 'Hold Device for Me'}
-                </button>
-              </form>
-            )}
           </div>
-        </div>
-      )}
+        ) : (
+          <form onSubmit={handleReserve} noValidate className="space-y-5">
+            <div className="pr-10">
+              <h2 className="text-subtitle">Hold it for your visit</h2>
+              <p className="mt-1 text-small text-ink-3">
+                {product.name} · {[currentVariant?.storage, currentVariant?.colour].filter((x) => x && x !== 'Standard').join(' · ')} · {formatINR(price)}
+              </p>
+            </div>
+            <div>
+              <label htmlFor="res-name" className="field-label">Your name</label>
+              <input id="res-name" type="text" autoComplete="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} aria-invalid={!!errors.name} aria-describedby={errors.name ? 'res-name-error' : undefined} className="field" />
+              {errors.name && <p id="res-name-error" className="field-error">{errors.name}</p>}
+            </div>
+            <div>
+              <label htmlFor="res-phone" className="field-label">Mobile (WhatsApp)</label>
+              <input id="res-phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'res-phone-error' : undefined} className="field" />
+              {errors.phone && <p id="res-phone-error" className="field-error">{errors.phone}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="res-date" className="field-label">Day</label>
+                <input id="res-date" type="date" value={visitDate} onChange={(e) => setVisitDate(e.target.value)} className="field" />
+              </div>
+              <div>
+                <label htmlFor="res-time" className="field-label">Time</label>
+                <select id="res-time" value={visitTime} onChange={(e) => setVisitTime(e.target.value)} className="field">
+                  <option>Morning (10:30 am–1 pm)</option>
+                  <option>Afternoon (1–5 pm)</option>
+                  <option>Evening (5–8 pm)</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
+              {isSubmitting ? 'Sending…' : 'Hold it for me'}
+            </button>
+            <p className="text-caption text-ink-3">No payment needed. We hold it until closing time that day.</p>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 }

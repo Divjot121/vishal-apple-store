@@ -1,256 +1,157 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useStore } from '@/context/StoreContext';
-import { buildWhatsAppLink } from '@/lib/utils';
-import {
-  MessageCircle,
-  Scale,
-  Menu,
-  X,
-  ShieldCheck,
-  MapPin,
-  Sparkles,
-  Lock,
-  Sun,
-  Moon,
-} from 'lucide-react';
+import { buildWhatsAppLink, cn } from '@/lib/utils';
+import { useStoreStatus } from '@/components/ui/useStoreStatus';
+import Logo from '@/components/ui/Logo';
+import { MessageCircle, Phone, Menu, X, Sun, Moon } from 'lucide-react';
+
+const NAV = [
+  { href: '/#catalog', label: 'In stock' },
+  { href: '/#how-we-check', label: 'Pre-owned' },
+  { href: '/#offers', label: 'Offers' },
+  { href: '/#tools', label: 'Exchange & EMI' },
+  { href: '/#repairs', label: 'Repairs' },
+  { href: '/#visit', label: 'Visit' },
+];
 
 export default function Header() {
-  const { settings, compareList, theme, toggleTheme } = useStore();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { settings, theme, toggleTheme } = useStore();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const status = useStoreStatus();
+  const pathname = usePathname();
 
   const whatsappHref = buildWhatsAppLink(
     settings.whatsappRaw,
-    'Hi Vishal Apple Store, I am exploring your premium Apple device catalog and would like to enquire.'
+    'Hi, I saw your website. I wanted to ask about a device.'
   );
 
+  // Close the mobile menu on route change and on Escape
+  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
+  const themeLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-white/[0.08] transition-all">
-      {/* Top micro-announcement banner */}
-      <div className="bg-[#121214] text-xs py-1.5 px-4 text-center text-neutral-400 border-b border-white/[0.04] flex items-center justify-center gap-2">
-        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#C9A24A] animate-pulse" />
-        <span className="font-medium text-neutral-300">Same-Day Amritsar & Punjab Delivery</span>
-        <span className="text-neutral-600">|</span>
-        <span className="hidden sm:inline">Transparent 40-Point Diagnostics</span>
-        <span className="text-neutral-600 hidden sm:inline">|</span>
-        <span className="text-[#C9A24A]">Shop No. 14, Ranjit Avenue</span>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Brand Logo Lockup */}
-          <Link href="/" className="flex items-center gap-3 group focus:outline-none focus:ring-1 focus:ring-[#C9A24A]/40 rounded-lg p-1">
-            <div className="relative h-10 w-44 sm:h-12 sm:w-56 overflow-hidden rounded-md bg-white p-1">
-              <Image
-                src="/brand/horizontal.jpeg"
-                alt="Vishal Apple Store"
-                fill
-                priority
-                sizes="(max-width: 640px) 176px, 224px"
-                className="object-contain"
-              />
-            </div>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-7 text-sm font-medium text-neutral-300">
-            <Link
-              href="/#catalog"
-              className="hover:text-white transition-colors duration-150 py-1"
-            >
-              Devices
-            </Link>
-            <Link
-              href="/#offers"
-              className="hover:text-white transition-colors duration-150 py-1 flex items-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#C9A24A]" />
-              Offers
-            </Link>
-            <Link
-              href="/#compare"
-              className="hover:text-white transition-colors duration-150 py-1 relative"
-            >
-              Compare
-              {compareList.length > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 text-[10px] bg-[#C9A24A] text-black font-semibold rounded-full">
-                  {compareList.length}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/#tools"
-              className="hover:text-white transition-colors duration-150 py-1"
-            >
-              EMI & Trade-In
-            </Link>
-            <Link
-              href="/#reviews"
-              className="hover:text-white transition-colors duration-150 py-1"
-            >
-              Reviews
-            </Link>
-            <Link
-              href="/#visit"
-              className="hover:text-white transition-colors duration-150 py-1 flex items-center gap-1"
-            >
-              <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-              Store
-            </Link>
-          </nav>
-
-          {/* Right Action Buttons */}
-          <div className="flex items-center space-x-3">
-            {/* Compare pill shortcut if active */}
-            {compareList.length > 0 && (
-              <a
-                href="#compare"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-medium bg-[#1F1F24] hover:bg-[#2A2A30] text-neutral-200 px-3 py-1.5 rounded-full border border-white/10 transition-colors"
-              >
-                <Scale className="w-3.5 h-3.5 text-[#C9A24A]" />
-                <span>Compare ({compareList.length})</span>
-              </a>
-            )}
-
-            {/* Direct WhatsApp CTA */}
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold rounded-full bg-[#1A1A1E] text-white hover:bg-[#26262B] border border-[#C9A24A]/40 hover:border-[#C9A24A] shadow-sm transition-all duration-200 group"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-[#C9A24A] group-hover:scale-110 transition-transform" />
-              <span>WhatsApp Us</span>
-            </a>
-
-            {/* Theme Toggle Button (Light / Dark) */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="inline-flex items-center justify-center p-2 rounded-full text-neutral-300 hover:text-white hover:bg-neutral-800/80 transition-colors border border-white/10"
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Theme`}
-              aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Theme`}
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-neutral-700" />
-              )}
-            </button>
-
-            {/* Admin Link */}
-            <Link
-              href="/admin"
-              className="inline-flex items-center justify-center p-2 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-800/80 transition-colors"
-              title="Admin Panel"
-              aria-label="Admin Panel"
-            >
-              <Lock className="w-4 h-4" />
-            </Link>
-
-            {/* Mobile Hamburger Button */}
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-neutral-300 hover:text-white hover:bg-neutral-800 focus:outline-none"
-              aria-label="Toggle navigation menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
+    <header className="sticky top-0 z-40 w-full border-b border-line bg-canvas">
+      {/* Store line: status, address, phone */}
+      <div className="border-b border-line">
+        <div className="wrap flex h-9 items-center justify-between gap-4 text-caption text-ink-3">
+          <p className="flex min-w-0 items-center gap-2">
+            <span
+              className={cn('h-1.5 w-1.5 shrink-0 rounded-full', status?.open ? 'bg-ok' : 'bg-ink-3')}
+              aria-hidden
+            />
+            <span className="truncate">
+              <span className="font-medium text-ink-2">{status ? status.label : 'Mon–Sat 10:30 am – 9 pm'}</span>
+              <span className="hidden sm:inline"> · Shop 14, District Shopping Complex, Ranjit Avenue</span>
+            </span>
+          </p>
+          <a
+            href={`tel:${settings.phoneRaw}`}
+            className="hidden h-9 shrink-0 items-center font-medium text-ink-2 hover:text-ink sm:inline-flex"
+          >
+            {settings.phone}
+          </a>
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#0D0D10] border-b border-white/10 px-4 pt-3 pb-6 space-y-3 animate-fade-in">
-          <div className="grid grid-cols-2 gap-2 pb-2">
-            <Link
-              href="/#catalog"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2.5 rounded-lg bg-neutral-900/60 text-sm font-medium text-neutral-200"
-            >
-              Explore Devices
-            </Link>
-            <Link
-              href="/#offers"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2.5 rounded-lg bg-neutral-900/60 text-sm font-medium text-neutral-200"
-            >
-              <Sparkles className="w-4 h-4 text-[#C9A24A]" />
-              Live Offers
-            </Link>
-            <Link
-              href="/#compare"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2.5 rounded-lg bg-neutral-900/60 text-sm font-medium text-neutral-200"
-            >
-              <Scale className="w-4 h-4 text-[#C9A24A]" />
-              Compare Devices
-            </Link>
-            <Link
-              href="/#tools"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2.5 rounded-lg bg-neutral-900/60 text-sm font-medium text-neutral-200"
-            >
-              EMI & Trade-In
-            </Link>
-            <Link
-              href="/#reviews"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2.5 rounded-lg bg-neutral-900/60 text-sm font-medium text-neutral-200"
-            >
-              Customer Reviews
-            </Link>
-            <Link
-              href="/#visit"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2.5 rounded-lg bg-neutral-900/60 text-sm font-medium text-neutral-200"
-            >
-              <MapPin className="w-4 h-4 text-neutral-400" />
-              Visit Store
-            </Link>
-          </div>
+      <div className="wrap flex h-16 items-center justify-between gap-4 lg:h-[72px]">
+        <Link href="/" className="-ml-1 shrink-0 rounded-md p-1" aria-label="Vishal Apple Store, home">
+          <Logo priority width={172} minWidth={136} />
+        </Link>
 
-          <div className="pt-2 border-t border-white/[0.08] flex flex-col gap-2">
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#C9A24A] text-black font-semibold text-sm"
-            >
-              <MessageCircle className="w-4 h-4 text-black" />
-              WhatsApp Store Consultation
-            </a>
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-neutral-900 text-neutral-400 text-xs hover:text-white"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              Store Owner Portal (/admin)
-            </Link>
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="w-full flex items-center justify-between py-2 px-4 rounded-xl bg-neutral-900 text-neutral-300 text-xs hover:text-white border border-white/5"
-            >
-              <span className="flex items-center gap-2">
-                {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-neutral-400" />}
-                <span>Theme Mode</span>
-              </span>
-              <span className="text-[11px] font-semibold text-[#C9A24A]">
-                {theme === 'dark' ? 'Light Theme ☀️' : 'Dark Theme 🌙'}
-              </span>
-            </button>
-          </div>
+        <nav aria-label="Main" className="hidden lg:block">
+          <ul className="flex items-center xl:gap-1">
+            {NAV.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full px-2.5 text-small font-medium text-ink-2 transition-colors hover:bg-subtle hover:text-ink xl:px-3"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <a href={`tel:${settings.phoneRaw}`} className="btn-quiet hidden px-4 md:inline-flex lg:hidden xl:inline-flex">
+            <Phone className="h-4 w-4" aria-hidden />
+            Call
+          </a>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary hidden px-4 sm:inline-flex"
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden />
+            WhatsApp
+          </a>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-subtle hover:text-ink"
+            aria-label={themeLabel}
+            title={themeLabel}
+          >
+            {theme === 'dark' ? <Sun className="h-[18px] w-[18px]" aria-hidden /> : <Moon className="h-[18px] w-[18px]" aria-hidden />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-subtle lg:hidden"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+          >
+            {menuOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+          </button>
         </div>
-      )}
+      </div>
+
+      {/* Mobile menu */}
+      <div
+        id="mobile-menu"
+        hidden={!menuOpen}
+        className="max-h-[calc(100dvh-6.25rem)] overflow-y-auto border-t border-line bg-canvas lg:hidden"
+      >
+        <nav aria-label="Mobile" className="wrap py-2">
+          <ul className="divide-y divide-line">
+            {NAV.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-[52px] items-center text-lead font-medium text-ink"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="grid grid-cols-2 gap-3 border-t border-line py-4">
+            <a href={`tel:${settings.phoneRaw}`} className="btn-quiet">
+              <Phone className="h-4 w-4" aria-hidden />
+              Call
+            </a>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="btn-primary">
+              <MessageCircle className="h-4 w-4" aria-hidden />
+              WhatsApp
+            </a>
+          </div>
+        </nav>
+      </div>
     </header>
   );
 }

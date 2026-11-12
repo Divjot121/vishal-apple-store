@@ -2,199 +2,102 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useStore } from '@/context/StoreContext';
 import { buildWhatsAppLink } from '@/lib/utils';
-import { Phone, MessageCircle, MapPin, Clock, ShieldAlert, ArrowUpRight } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
-function InstagramIcon({ className = 'w-4 h-4' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-    </svg>
-  );
-}
+const SHOP = ['iPhone', 'Mac', 'iPad', 'Apple Watch', 'AirPods', 'Chargers and accessories'];
+const HELP: [string, string][] = [
+  ['How we check pre-owned', '/#how-we-check'],
+  ['Exchange your old phone', '/#tools'],
+  ['EMI on cards', '/#tools'],
+  ['Repairs', '/#repairs'],
+  ['Reviews', '/#reviews'],
+];
+
+const linkCls = 'inline-flex min-h-[44px] items-center text-night-ink-2 transition-colors hover:text-night-ink sm:min-h-[36px]';
 
 export default function Footer() {
   const { settings } = useStore();
-
-  const whatsappHref = buildWhatsAppLink(
-    settings.whatsappRaw,
-    'Hi Vishal Apple Store, I am inquiring about store timings and device availability.'
-  );
+  const a = settings.address;
+  const whatsappHref = buildWhatsAppLink(settings.whatsappRaw, 'Hi, I have a question.');
 
   return (
-    <footer className="w-full bg-[#080809] border-t border-white/[0.08] text-neutral-400 text-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
-          {/* Col 1 & 2: Brand Lockup & Bio */}
-          <div className="lg:col-span-2 space-y-5">
-            <Link href="/" className="inline-block group focus:outline-none">
-              <div className="relative h-14 w-60 overflow-hidden rounded-md bg-white p-1.5">
-                <Image
-                  src="/brand/horizontal.jpeg"
-                  alt="Vishal Apple Store"
-                  fill
-                  sizes="240px"
-                  className="object-contain"
-                />
-              </div>
-            </Link>
-
-            <p className="text-neutral-400 text-sm leading-relaxed max-w-sm">
-              {settings.shortDescription}
-            </p>
-
-            <div className="pt-2 flex flex-wrap gap-3">
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-neutral-900 border border-white/10 text-xs font-medium text-neutral-200 hover:text-white hover:border-[#C9A24A]/50 transition-colors"
-              >
-                <MessageCircle className="w-3.5 h-3.5 text-[#C9A24A]" />
-                WhatsApp Direct
-              </a>
-              <a
-                href={`tel:${settings.phoneRaw}`}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-neutral-900 border border-white/10 text-xs font-medium text-neutral-200 hover:text-white hover:border-[#C9A24A]/50 transition-colors"
-              >
-                <Phone className="w-3.5 h-3.5 text-[#C9A24A]" />
+    <footer className="bg-night text-small text-night-ink-2">
+      <div className="wrap grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 lg:py-20">
+        <div className="sm:col-span-2 lg:col-span-4">
+          <Link href="/" aria-label="Vishal Apple Store, home" className="inline-block rounded-md">
+            <Logo tone="plate" width={176} />
+          </Link>
+          <p className="mt-5 max-w-sm">{settings.shortDescription}</p>
+          <ul className="mt-4 space-y-0.5">
+            <li>
+              <a href={`tel:${settings.phoneRaw}`} className={`${linkCls} font-semibold text-night-ink`}>
                 {settings.phone}
               </a>
-              <a
-                href={settings.socials.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-neutral-900 border border-white/10 text-xs font-medium text-neutral-200 hover:text-white hover:border-[#C9A24A]/50 transition-colors"
-              >
-                <InstagramIcon className="w-3.5 h-3.5 text-[#C9A24A]" />
-                {settings.socials.instagramHandle}
+            </li>
+            <li>
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                WhatsApp
               </a>
-            </div>
-          </div>
-
-          {/* Col 3: Categories */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-200">
-              Curated Categories
-            </h3>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/#catalog" className="hover:text-white transition-colors">
-                  iPhone (New & Pre-Owned)
-                </Link>
-              </li>
-              <li>
-                <Link href="/#catalog" className="hover:text-white transition-colors">
-                  MacBook Pro & Air
-                </Link>
-              </li>
-              <li>
-                <Link href="/#catalog" className="hover:text-white transition-colors">
-                  iPad Pro & Air
-                </Link>
-              </li>
-              <li>
-                <Link href="/#catalog" className="hover:text-white transition-colors">
-                  AirPods & Audio
-                </Link>
-              </li>
-              <li>
-                <Link href="/#catalog" className="hover:text-white transition-colors">
-                  Apple Watch & Ultra
-                </Link>
-              </li>
-              <li>
-                <Link href="/#catalog" className="hover:text-white transition-colors">
-                  Original Accessories
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Col 4: Store Services */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-200">
-              Store Services
-            </h3>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/#tools" className="hover:text-white transition-colors">
-                  40-Point Diagnostic Check
-                </Link>
-              </li>
-              <li>
-                <Link href="/#tools" className="hover:text-white transition-colors">
-                  Device Trade-In Valuation
-                </Link>
-              </li>
-              <li>
-                <Link href="/#tools" className="hover:text-white transition-colors">
-                  Zero-Down EMI Schemes
-                </Link>
-              </li>
-              <li>
-                <Link href="/#reviews" className="hover:text-white transition-colors">
-                  Verified Customer Reviews
-                </Link>
-              </li>
-              <li>
-                <Link href="/#repair-form" className="hover:text-white transition-colors">
-                  Diagnostics & Repair Request
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin" className="hover:text-[#C9A24A] transition-colors flex items-center gap-1">
-                  Owner Admin Login <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Col 5: Visit Us */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-200">
-              Amritsar Store
-            </h3>
-            <div className="space-y-3 text-xs text-neutral-400">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#C9A24A] shrink-0 mt-0.5" />
-                <span>
-                  {settings.address.shopNo}, {settings.address.building}, {settings.address.area}, {settings.address.city} - {settings.address.pincode}
-                </span>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-[#C9A24A] shrink-0 mt-0.5" />
-                <div>
-                  <p>{settings.timings.weekdays}</p>
-                  <p className="mt-0.5">{settings.timings.sunday}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            </li>
+            <li>
+              <a href={settings.socials.instagramUrl} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                Instagram {settings.socials.instagramHandle}
+              </a>
+            </li>
+          </ul>
         </div>
 
-        {/* Legal Disclaimer Box (Strictly per guidelines: No Authorised Apple Reseller claim) */}
-        <div className="mt-12 pt-8 border-t border-white/[0.08]">
-          <div className="rounded-xl bg-[#121214] border border-white/[0.06] p-4 text-xs text-neutral-400 flex items-start gap-3">
-            <ShieldAlert className="w-4 h-4 text-neutral-400 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-medium text-neutral-300">Independent Retailer Notice & Trademark Disclaimer</p>
-              <p className="leading-relaxed">
-                {settings.brand.disclaimer} All product names, logos, brands, and registered trademarks belong exclusively to Apple Inc. Vishal Apple Store is an independent retail and service entity providing inspected devices, store warranties, and retail assistance in Amritsar, Punjab. GST registered: {settings.brand.gstNumber}.
-              </p>
-            </div>
-          </div>
+        <nav aria-label="Shop" className="lg:col-span-2">
+          <h2 className="text-eyebrow uppercase text-night-ink">Shop</h2>
+          <ul className="mt-3">
+            {SHOP.map((s) => (
+              <li key={s}>
+                <Link href="/#catalog" className={linkCls}>{s}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-400 gap-4">
-            <p>© {new Date().getFullYear()} Vishal Apple Store. All rights reserved.</p>
-            <p className="text-neutral-400">
-              Crafted for refined device commerce with Next.js & TypeScript.
-            </p>
-          </div>
+        <nav aria-label="Help" className="lg:col-span-3">
+          <h2 className="text-eyebrow uppercase text-night-ink">Help</h2>
+          <ul className="mt-3">
+            {HELP.map(([label, href]) => (
+              <li key={label}>
+                <Link href={href} className={linkCls}>{label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="lg:col-span-3">
+          <h2 className="text-eyebrow uppercase text-night-ink">The shop</h2>
+          <address className="mt-4 not-italic leading-relaxed">
+            {a.shopNo}, {a.building}
+            <br />
+            {a.area}, {a.city} {a.pincode}
+          </address>
+          <p className="mt-3 leading-relaxed">
+            {settings.timings.weekdays}
+            <br />
+            {settings.timings.sunday}
+          </p>
+          <a href={settings.socials.googleMapsDirectionsUrl} target="_blank" rel="noopener noreferrer" className={`${linkCls} mt-1 font-semibold text-night-ink underline underline-offset-4`}>
+            Get directions
+          </a>
+        </div>
+      </div>
+
+      <div className="border-t border-night-line">
+        <div className="wrap flex flex-col gap-4 py-6 text-caption lg:flex-row lg:items-start lg:justify-between lg:gap-12">
+          <p className="max-w-3xl">{settings.brand.disclaimer}</p>
+          <p className="shrink-0">
+            © {new Date().getFullYear()} {settings.storeName} ·{' '}
+            <Link href="/admin" className="underline underline-offset-4 hover:text-night-ink">
+              Staff login
+            </Link>
+          </p>
         </div>
       </div>
     </footer>
