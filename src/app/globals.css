@@ -206,3 +206,25 @@ dialog:modal {
   background: #0a0a0a;
   color: #fff;
 }
+
+/* Admin readability: the legacy 10–11px labels are raised to 12px everywhere */
+.admin-scope .text-\[10px\],
+.admin-scope .text-\[11px\] {
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 767px) {
+  /* 16px fields stop iOS Safari zooming the page when a field is focused */
+  .admin-scope input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  .admin-scope select,
+  .admin-scope textarea {
+    font-size: 16px;
+  }
+  /* comfortable touch targets on phones */
+  .admin-scope button,
+  .admin-scope select,
+  .admin-scope input:not([type='checkbox']):not([type='radio']):not([type='range']) {
+    min-height: 44px;
+  }
+}

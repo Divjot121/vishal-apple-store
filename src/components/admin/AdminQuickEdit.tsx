@@ -26,40 +26,29 @@ export default function AdminQuickEdit() {
     Record<string, { price: number; stock: number; inStock: boolean }>
   >({});
 
-  const handlePriceChange = (variantId: string, currentPrice: number, newPrice: number) => {
-    setEdits((prev) => ({
-      ...prev,
-      [variantId]: {
-        ...(prev[variantId] || { price: currentPrice, stock: 1, inStock: true }),
-        price: newPrice,
-      },
-    }));
+  type Edit = { price: number; stock: number; inStock: boolean };
+  type Variant = Product['variants'][number];
+
+  // Unedited values come from the saved variant, so changing one field never
+  // overwrites the others (previously an untouched price was saved as ₹0).
+  const baseFor = (product: Product, variant: Variant): Edit =>
+    edits[variant.id] || { price: variant.price, stock: variant.stock, inStock: product.inStock && variant.stock > 0 };
+
+  const handlePriceChange = (product: Product, variant: Variant, newPrice: number) => {
+    setEdits((prev) => ({ ...prev, [variant.id]: { ...baseFor(product, variant), price: newPrice } }));
   };
 
-  const handleStockChange = (variantId: string, currentStock: number, newStock: number) => {
-    setEdits((prev) => ({
-      ...prev,
-      [variantId]: {
-        ...(prev[variantId] || { price: 0, stock: currentStock, inStock: newStock > 0 }),
-        stock: newStock,
-        inStock: newStock > 0,
-      },
-    }));
+  const handleStockChange = (product: Product, variant: Variant, newStock: number) => {
+    const stock = Math.max(0, Math.round(newStock) || 0);
+    setEdits((prev) => ({ ...prev, [variant.id]: { ...baseFor(product, variant), stock, inStock: stock > 0 } }));
   };
 
-  const handleToggleStock = (
-    variantId: string,
-    currentStock: number,
-    currentInStock: boolean,
-    newInStock: boolean
-  ) => {
+  const handleToggleStock = (product: Product, variant: Variant) => {
+    const base = baseFor(product, variant);
+    const inStock = !base.inStock;
     setEdits((prev) => ({
       ...prev,
-      [variantId]: {
-        ...(prev[variantId] || { price: 0, stock: currentStock, inStock: currentInStock }),
-        inStock: newInStock,
-        stock: newInStock ? (currentStock > 0 ? currentStock : 1) : 0,
-      },
+      [variant.id]: { ...base, inStock, stock: inStock ? (base.stock > 0 ? base.stock : 1) : 0 },
     }));
   };
 
@@ -75,7 +64,12 @@ export default function AdminQuickEdit() {
         inStock: edit.inStock,
       });
 
-      setSuccessMessage(`Updated ${product.name} successfully! Visible on storefront.`);
+      setEdits((prev) => {
+        const next = { ...prev };
+        delete next[variantId];
+        return next;
+      });
+      setSuccessMessage(`Saved ${product.name}. It's live on the storefront.`);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error(err);
@@ -115,7 +109,7 @@ export default function AdminQuickEdit() {
         </div>
 
         {successMessage && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold animate-fade-in">
+          <div role="status" className="fixed inset-x-4 bottom-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-[#10241a] border border-emerald-500/40 text-emerald-300 text-sm font-semibold shadow-2xl sm:static sm:inset-auto sm:z-auto sm:py-2 sm:bg-emerald-500/15 sm:text-emerald-400 sm:text-xs sm:shadow-none">
             <Check className="w-4 h-4" />
             <span>{successMessage}</span>
           </div>
@@ -153,8 +147,94 @@ export default function AdminQuickEdit() {
         </div>
       </div>
 
-      {/* Responsive Table */}
-      <div className="rounded-2xl bg-[#141418] border border-white/[0.08] overflow-hidden">
+      {/* Phones: one card per product, big controls per variant */}
+      <ul className="space-y-3 md:hidden">
+        {filteredProducts.map((product) => (
+          <li key={product.id} className="rounded-2xl bg-[#141418] border border-white/[0.08] overflow-hidden">
+            <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3 border-b border-white/[0.06]">
+              <div className="min-w-0">
+                <p className="text-base font-bold text-white leading-snug">{product.name}</p>
+                <p className="text-xs text-neutral-400 mt-0.5">{product.category} · {product.condition}</p>
+              </div>
+              <span className="shrink-0 text-xs text-neutral-400">{product.variants.length} {product.variants.length === 1 ? 'variant' : 'variants'}</span>
+            </div>
+            <div className="divide-y divide-white/[0.06]">
+              {product.variants.map((variant) => {
+                const edit = edits[variant.id];
+                const cur = baseFor(product, variant);
+                const saving = savingId === variant.id;
+                const label = [variant.storage, variant.colour].filter((x) => x && x !== 'Standard').join(' · ') || 'Standard';
+                return (
+                  <div key={variant.id} className={`p-4 space-y-3 ${edit ? 'bg-[#C9A24A]/[0.06]' : ''}`}>
+                    <p className="text-sm font-semibold text-neutral-100">{label}</p>
+                    <div className="grid grid-cols-[1fr_6rem] gap-3">
+                      <label className="block">
+                        <span className="block text-xs text-neutral-400 mb-1">Price (₹)</span>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          step="100"
+                          value={cur.price}
+                          onChange={(e) => handlePriceChange(product, variant, Number(e.target.value))}
+                          className="w-full min-h-[44px] px-3 rounded-lg bg-neutral-900 border border-white/15 text-white font-bold text-base focus:border-[#C9A24A] focus:outline-none"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="block text-xs text-neutral-400 mb-1">Stock</span>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min="0"
+                          value={cur.stock}
+                          onChange={(e) => handleStockChange(product, variant, Number(e.target.value))}
+                          className="w-full min-h-[44px] px-3 rounded-lg bg-neutral-900 border border-white/15 text-white font-bold text-base focus:border-[#C9A24A] focus:outline-none"
+                        />
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={cur.inStock}
+                        onClick={() => handleToggleStock(product, variant)}
+                        className={`min-h-[44px] rounded-lg text-sm font-semibold border transition-colors ${
+                          cur.inStock
+                            ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                            : 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+                        }`}
+                      >
+                        {cur.inStock ? 'In stock' : 'Out of stock'}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!edit || saving}
+                        onClick={() => handleSaveRow(product, variant.id)}
+                        className={`min-h-[44px] rounded-lg text-sm font-bold inline-flex items-center justify-center gap-1.5 transition-colors ${
+                          edit ? 'bg-[#C9A24A] text-black' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
+                        }`}
+                      >
+                        <Save className="w-4 h-4" aria-hidden />
+                        {saving ? 'Saving…' : edit ? 'Save' : 'Saved'}
+                      </button>
+                    </div>
+                    {edit && (
+                      <p className="text-xs text-neutral-400">
+                        Was {formatINR(variant.price)} · {variant.stock} in stock
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </li>
+        ))}
+        {filteredProducts.length === 0 && (
+          <li className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-neutral-400">No devices match that search.</li>
+        )}
+      </ul>
+
+      {/* Tablet and desktop: table */}
+      <div className="hidden md:block rounded-2xl bg-[#141418] border border-white/[0.08] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
@@ -233,13 +313,8 @@ export default function AdminQuickEdit() {
                             type="number"
                             step="100"
                             value={activePrice}
-                            onChange={(e) =>
-                              handlePriceChange(
-                                variant.id,
-                                variant.price,
-                                Number(e.target.value)
-                              )
-                            }
+                            onChange={(e) => handlePriceChange(product, variant, Number(e.target.value))}
+                            aria-label={`Price for ${product.name} ${variant.storage} ${variant.colour}`}
                             className="w-full pl-6 pr-2 py-1.5 rounded-lg bg-neutral-900 border border-white/10 text-white font-bold text-xs focus:border-[#C9A24A] focus:outline-none"
                           />
                         </div>
@@ -251,13 +326,8 @@ export default function AdminQuickEdit() {
                           type="number"
                           min="0"
                           value={activeStock}
-                          onChange={(e) =>
-                            handleStockChange(
-                              variant.id,
-                              variant.stock,
-                              Number(e.target.value)
-                            )
-                          }
+                          onChange={(e) => handleStockChange(product, variant, Number(e.target.value))}
+                          aria-label={`Stock for ${product.name} ${variant.storage} ${variant.colour}`}
                           className="w-20 px-2 py-1.5 rounded-lg bg-neutral-900 border border-white/10 text-white font-bold text-xs focus:border-[#C9A24A] focus:outline-none"
                         />
                       </td>
@@ -266,14 +336,7 @@ export default function AdminQuickEdit() {
                       <td className="py-3 px-4">
                         <button
                           type="button"
-                          onClick={() =>
-                            handleToggleStock(
-                              variant.id,
-                              activeStock,
-                              activeInStock,
-                              !activeInStock
-                            )
-                          }
+                          onClick={() => handleToggleStock(product, variant)}
                           className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-colors ${
                             activeInStock
                               ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'

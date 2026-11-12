@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/private/'],
+      disallow: ['/admin'],
     },
     sitemap: 'https://vishalapplestore.com/sitemap.xml',
   };

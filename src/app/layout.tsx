@@ -3,10 +3,6 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { StoreProvider } from '@/context/StoreContext';
 import { defaultStoreConfig } from '@/lib/store-config';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import MobileBottomBar from '@/components/layout/MobileBottomBar';
-import CompareDrawer from '@/components/store/CompareDrawer';
 import RevealObserver from '@/components/ui/RevealObserver';
 import { themeColors } from '@/lib/tokens';
 
@@ -134,20 +130,8 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-screen flex-col">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-small focus:font-semibold focus:text-canvas"
-        >
-          Skip to content
-        </a>
         <StoreProvider>
-          <Header />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <CompareDrawer />
-          <MobileBottomBar />
+          {children}
           <RevealObserver />
         </StoreProvider>
       </body>

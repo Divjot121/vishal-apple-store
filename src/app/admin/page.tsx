@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import Logo from '@/components/ui/Logo';
 import Link from 'next/link';
 import { useStore } from '@/context/StoreContext';
 import AdminDashboard from '@/components/admin/AdminDashboard';
@@ -56,18 +56,12 @@ export default function AdminPage() {
   // If not authenticated, render Login Screen
   if (!isAdmin) {
     return (
-      <div className="admin-scope min-h-screen bg-[#0A0A0A] flex flex-col justify-center items-center p-4 sm:p-6">
+      <div className="min-h-screen bg-[#0A0A0A] flex flex-col justify-center items-center p-4 sm:p-6">
         <div className="w-full max-w-md bg-[#121215] border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl relative space-y-6">
           {/* Logo */}
           <div className="text-center space-y-3">
-            <div className="relative h-20 w-44 mx-auto rounded-lg overflow-hidden bg-white p-2">
-              <Image
-                src="/brand/logo-horizontal.jpg"
-                alt="Vishal Apple Store"
-                fill
-                priority
-                className="object-contain"
-              />
+            <div className="flex justify-center">
+              <Logo tone="reverse" width={180} priority />
             </div>
             <div>
               <h1 className="text-xl font-bold text-white tracking-tight">
@@ -155,18 +149,13 @@ export default function AdminPage() {
   const unreadEnquiriesCount = enquiries.filter((e) => e.status === 'New').length;
 
   return (
-    <div className="admin-scope min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Top Admin Header Bar */}
       <header className="sticky top-0 z-30 bg-[#0E0E12]/95 backdrop-blur-xl border-b border-white/[0.08]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/admin" className="relative h-8 w-36 overflow-hidden rounded bg-white p-1">
-              <Image
-                src="/brand/logo-horizontal.jpg"
-                alt="Vishal Apple Store"
-                fill
-                className="object-contain"
-              />
+            <Link href="/admin" aria-label="Admin home" className="shrink-0 rounded-md">
+              <Logo tone="reverse" width={140} />
             </Link>
             <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-[#C9A24A]/15 text-[#C9A24A] text-[10px] font-bold uppercase tracking-wider border border-[#C9A24A]/30">
               Admin Console
@@ -234,7 +223,7 @@ export default function AdminPage() {
               }`}
             >
               <Package className="w-3.5 h-3.5" />
-              <span>Products CRUD</span>
+              <span>Products</span>
             </button>
 
             <button
@@ -296,7 +285,7 @@ export default function AdminPage() {
       </header>
 
       {/* Main Admin Tab View */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main id="main" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeTab === 'dashboard' && <AdminDashboard onNavigateTab={setActiveTab} />}
         {activeTab === 'quick-edit' && <AdminQuickEdit />}
         {activeTab === 'products' && <AdminProducts />}
