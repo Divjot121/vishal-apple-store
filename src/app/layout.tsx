@@ -7,6 +7,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileBottomBar from '@/components/layout/MobileBottomBar';
 import CompareDrawer from '@/components/store/CompareDrawer';
+import RevealObserver from '@/components/ui/RevealObserver';
+import { themeColors } from '@/lib/tokens';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -15,7 +17,10 @@ const inter = Inter({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#0A0A0A',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: themeColors.light },
+    { media: '(prefers-color-scheme: dark)', color: themeColors.dark },
+  ],
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -24,11 +29,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://vishalapplestore.com'),
   title: {
-    default: 'Vishal Apple Store | Premium Apple Specialist in Ranjit Avenue, Amritsar',
+    default: 'Vishal Apple Store | iPhone, Mac & iPad in Ranjit Avenue, Amritsar',
     template: '%s | Vishal Apple Store',
   },
   description:
-    'New, Unboxed & Certified Pre-Owned Apple devices in Amritsar & Punjab. 40-point verified diagnostics, genuine GST tax invoice, transparent battery grading, and store warranty support.',
+    'New, open-box and checked pre-owned iPhone, Mac, iPad and Apple Watch in Ranjit Avenue, Amritsar. GST bill on every sale, 6-month store warranty on pre-owned, repairs and exchange.',
   keywords: [
     'Apple Store Amritsar',
     'iPhone 16 Pro Amritsar',
@@ -45,23 +50,23 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://vishalapplestore.com',
     siteName: 'Vishal Apple Store',
-    title: 'Vishal Apple Store | Curated Apple Devices in Amritsar, Punjab',
+    title: 'Vishal Apple Store | Ranjit Avenue, Amritsar',
     description:
-      'Experience genuine New, Unboxed & Certified Pre-Owned Apple devices with transparent 40-point diagnostics, store warranty, and instant WhatsApp inquiry.',
+      'New, open-box and checked pre-owned Apple devices. Tested in front of you, billed with GST, 6-month warranty on pre-owned.',
     images: [
       {
         url: '/brand/horizontal.jpeg',
         width: 1200,
         height: 630,
-        alt: 'Vishal Apple Store - Independent Apple Specialist',
+        alt: 'Vishal Apple Store logo',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Vishal Apple Store | Premium Apple Devices Amritsar',
+    title: 'Vishal Apple Store | Ranjit Avenue, Amritsar',
     description:
-      'Curated Apple devices with transparent grading and verified store warranty. Ranjit Avenue, Amritsar.',
+      'New, open-box and checked pre-owned Apple devices in Ranjit Avenue, Amritsar.',
     images: ['/brand/horizontal.jpeg'],
   },
   robots: {
@@ -115,22 +120,12 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${inter.variable} dark`}>
+    <html lang="en-IN" className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* Set theme + js flag before first paint: stored choice, else system preference */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                const t = localStorage.getItem('vas_theme');
-                if (t === 'light') {
-                  document.documentElement.classList.remove('dark');
-                  document.documentElement.classList.add('light');
-                } else {
-                  document.documentElement.classList.remove('light');
-                  document.documentElement.classList.add('dark');
-                }
-              } catch(e) {}
-            `,
+            __html: `(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('vas_theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}d.classList.add(t)}catch(e){d.classList.add('light')}})();`,
           }}
         />
         <script
@@ -138,13 +133,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-[#0A0A0A] text-white min-h-screen flex flex-col antialiased selection:bg-[#C9A24A]/30 selection:text-white">
+      <body className="flex min-h-screen flex-col">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-small focus:font-semibold focus:text-canvas"
+        >
+          Skip to content
+        </a>
         <StoreProvider>
           <Header />
-          <main className="flex-1 pb-20 md:pb-0">{children}</main>
+          <main id="main" className="flex-1">
+            {children}
+          </main>
           <Footer />
           <CompareDrawer />
           <MobileBottomBar />
+          <RevealObserver />
         </StoreProvider>
       </body>
     </html>

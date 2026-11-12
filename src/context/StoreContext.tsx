@@ -59,21 +59,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [compareList, setCompareList] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
-  // Initialize theme from localStorage
+  // The pre-paint script in layout.tsx has already put 'light' or 'dark' on <html>
+  // (stored choice, else system preference). Mirror it into state.
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('vas_theme') as 'dark' | 'light' | null;
-      if (saved === 'light' || saved === 'dark') {
-        setTheme(saved);
-        document.documentElement.classList.remove('dark', 'light');
-        document.documentElement.classList.add(saved);
-      } else {
-        document.documentElement.classList.remove('light');
-        document.documentElement.classList.add('dark');
-      }
-    } catch {}
+    setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
   }, []);
 
   const toggleTheme = useCallback(() => {

@@ -2,259 +2,207 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================
+   Design tokens. Values are RGB channels so Tailwind's opacity
+   modifiers work (e.g. bg-ink/5). Mirror of src/lib/tokens.ts.
+   Light is the default; html.dark swaps the set.
+   ========================================================== */
 :root {
-  --background: #0A0A0A;
-  --foreground: #FFFFFF;
-  --gold: #C9A24A;
-  --gold-glow: rgba(201, 162, 74, 0.2);
+  --canvas: 246 244 240;      /* #F6F4F0 warm off-white */
+  --surface: 255 255 255;
+  --subtle: 237 234 228;      /* #EDEAE4 */
+  --tile: 234 231 225;        /* #EAE7E1 product tiles */
+  --ink: 23 22 20;            /* #171614 */
+  --ink-2: 74 70 64;          /* #4A4640 */
+  --ink-3: 104 99 91;         /* #68635B */
+  --line: 220 215 206;        /* #DCD7CE */
+  --line-strong: 149 142 131; /* #958E83: 3:1 for input borders */
+  --gold: 201 162 74;         /* #C9A24A brand accent (fills) */
+  --gold-ink: 122 93 26;      /* #7A5D1A gold text on light */
+  --night: 22 21 19;          /* #161513 */
+  --night-2: 34 32 29;        /* #22201D */
+  --night-ink: 243 241 236;   /* #F3F1EC */
+  --night-ink-2: 178 172 162; /* #B2ACA2 */
+  --night-line: 52 49 45;     /* #34312D */
+  --ok: 38 99 56;             /* #266338 */
+  --warn: 146 84 14;          /* #92540E */
+  --bad: 160 52 38;           /* #A03426 */
+  --focus: 122 93 26;
+  color-scheme: light;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
+html.dark {
+  --canvas: 15 14 13;         /* #0F0E0D */
+  --surface: 25 24 22;        /* #191816 */
+  --subtle: 34 32 29;         /* #22201D */
+  --tile: 31 29 26;           /* #1F1D1A */
+  --ink: 243 241 236;
+  --ink-2: 200 194 184;       /* #C8C2B8 */
+  --ink-3: 152 146 136;       /* #989288 */
+  --line: 47 44 40;           /* #2F2C28 */
+  --line-strong: 104 99 91;   /* #68635B */
+  --gold-ink: 212 177 99;     /* #D4B163 */
+  --night: 6 6 5;             /* #060605: a step darker than canvas */
+  --night-2: 25 24 22;
+  --night-line: 40 38 34;
+  --ok: 132 194 146;          /* #84C292 */
+  --warn: 226 168 92;         /* #E2A85C */
+  --bad: 232 142 126;         /* #E88E7E */
+  --focus: 212 177 99;
   color-scheme: dark;
 }
 
-body {
-  background-color: #0A0A0A;
-  color: #FFFFFF;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    @apply bg-canvas text-ink-2 antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    @apply text-ink;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One visible focus style for every interactive element */
+  :focus-visible {
+    outline: 2px solid rgb(var(--focus));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: rgb(var(--gold) / 0.3);
+    color: rgb(var(--ink));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
 }
 
-/* Modern Web Guidance Dialog Styling */
+@layer components {
+  /* Page container: one grid for every section */
+  .wrap {
+    @apply mx-auto w-full max-w-page px-4 sm:px-6 lg:px-8;
+  }
+
+  /* One vertical rhythm between sections */
+  .section {
+    padding-block: clamp(4rem, 2.75rem + 4vw, 6.5rem);
+  }
+
+  .eyebrow {
+    @apply text-eyebrow uppercase text-ink-3;
+  }
+
+  /* Buttons: one primary (ink), one accent (gold), one quiet (outline) */
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 text-small font-semibold transition-colors duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-canvas hover:bg-ink/85;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-[#171614] hover:bg-gold/85;
+  }
+  .btn-quiet {
+    @apply btn border border-line-strong bg-transparent text-ink hover:border-ink hover:bg-ink/[0.04];
+  }
+
+  /* Form controls */
+  .field-label {
+    @apply mb-1.5 block text-small font-medium text-ink;
+  }
+  .field {
+    @apply block min-h-[44px] w-full rounded-control border border-line-strong bg-surface px-3.5 py-2.5 text-base text-ink placeholder:text-ink-3 transition-colors focus:border-ink focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--focus))] focus-visible:ring-offset-0;
+  }
+  .field[aria-invalid='true'] {
+    @apply border-bad;
+  }
+  .field-error {
+    @apply mt-1.5 text-caption font-medium text-bad;
+  }
+
+  /* Chips used for filters and selectors */
+  .chip {
+    @apply inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-surface px-3.5 text-small font-medium text-ink-2 transition-colors hover:border-line-strong hover:text-ink;
+  }
+  .chip[aria-pressed='true'],
+  .chip[aria-checked='true'],
+  .chip[aria-selected='true'] {
+    @apply border-ink bg-ink text-canvas;
+  }
+
+  .card {
+    @apply rounded-card border border-line bg-surface;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ==========================================================
+   Motion: one gentle reveal on scroll, nothing that loops.
+   Only applies once JS has marked <html class="js">, so content
+   is never hidden if scripts fail.
+   ========================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html.js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Native dialog backdrop */
+dialog::backdrop {
+  background: rgb(10 10 9 / 0.6);
+}
 dialog:modal {
   overscroll-behavior: contain;
 }
 
-dialog::backdrop {
-  overflow: hidden;
-  overscroll-behavior: contain;
-  background-color: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-}
-
-/* Custom hairline borders */
-.border-hairline {
-  border-width: 0.5px;
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-.border-hairline-gold {
-  border-width: 0.5px;
-  border-color: rgba(201, 162, 74, 0.35);
-}
-
-/* Glass panel */
-.glass-panel {
-  background: rgba(18, 18, 20, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 0.5px solid rgba(255, 255, 255, 0.08);
-}
-
-.glass-panel-gold {
-  background: rgba(24, 22, 18, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 0.5px solid rgba(201, 162, 74, 0.25);
-}
-
-/* Gold gradient text */
-.text-gradient-gold {
-  background: linear-gradient(135deg, #FFFFFF 0%, #E6C875 50%, #C9A24A 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Subtle scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0A0A0A;
-}
-::-webkit-scrollbar-thumb {
-  background: #26262A;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #3F3F46;
-}
-
-/* ========================================================
-   LIGHT / WHITE THEME (Apple Minimalist Luxury, High Contrast)
-   ======================================================== */
-html.light {
-  color-scheme: light;
-  --background: #FFFFFF;
-  --foreground: #111827;
-  --gold: #A88334;
-  --gold-glow: rgba(168, 131, 52, 0.2);
-}
-
-html.light body {
-  background-color: #F8F9FA !important;
-  color: #111827 !important;
-}
-
-/* Header & Navigation */
-html.light header {
-  background-color: rgba(255, 255, 255, 0.92) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* Base surface backgrounds */
-html.light .bg-\[\#0A0A0A\],
-html.light .bg-\[\#0A0A0A\]\/90,
-html.light .bg-\[\#0E0E11\],
-html.light .bg-\[\#0E0E11\]\/95,
-html.light .bg-\[\#0D0D10\] {
-  background-color: #FFFFFF !important;
-}
-
-html.light .bg-\[\#121214\],
-html.light .bg-\[\#121215\],
-html.light .bg-\[\#141417\],
-html.light .bg-\[\#141418\],
-html.light .bg-\[\#161619\],
-html.light .bg-\[\#161619\]\/90,
-html.light .bg-\[\#18181B\],
-html.light .bg-\[\#18181C\],
-html.light .bg-\[\#1A1A1E\],
-html.light .bg-\[\#1F1F24\],
-html.light .bg-neutral-900,
-html.light .bg-neutral-900\/60,
-html.light .bg-neutral-950 {
-  background-color: #F3F4F6 !important;
-}
-
-html.light .bg-neutral-800,
-html.light .bg-neutral-800\/80,
-html.light .bg-\[\#2A2A30\],
-html.light .bg-\[\#26262B\] {
-  background-color: #E5E7EB !important;
-}
-
-/* Text adaptations */
-html.light .text-white {
-  color: #111827 !important;
-}
-
-html.light .text-neutral-100,
-html.light .text-neutral-200,
-html.light .text-neutral-300 {
-  color: #1F2937 !important;
-}
-
-html.light .text-neutral-400 {
-  color: #4B5563 !important;
-}
-
-html.light .text-neutral-500 {
-  color: #6B7280 !important;
-}
-
-html.light .text-neutral-600 {
-  color: #9CA3AF !important;
-}
-
-/* Gold Gradient text in Light Mode */
-html.light .text-gradient-gold {
-  background: linear-gradient(135deg, #111827 0%, #B8860B 55%, #8B6508 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
-
-/* Hairline borders in Light Mode */
-html.light .border-white\/\[0\.04\],
-html.light .border-white\/\[0\.06\],
-html.light .border-white\/\[0\.08\],
-html.light .border-white\/10,
-html.light .border-white\/20,
-html.light .border-white\/5,
-html.light .border-hairline {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-html.light .border-hairline-gold {
-  border-color: rgba(184, 134, 11, 0.4) !important;
-}
-
-/* Glass panels in Light Mode */
-html.light .glass-panel {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06) !important;
-}
-
-html.light .glass-panel-gold {
-  background: rgba(254, 252, 245, 0.92) !important;
-  border-color: rgba(184, 134, 11, 0.35) !important;
-}
-
-/* Primary Hero & Action Buttons (white CTA flips to high-contrast dark CTA) */
-html.light a.bg-white,
-html.light button.bg-white.text-black {
-  background-color: #111827 !important;
-  color: #FFFFFF !important;
-}
-
-html.light a.bg-white:hover,
-html.light button.bg-white.text-black:hover {
-  background-color: #000000 !important;
-}
-
-html.light a.bg-white svg,
-html.light button.bg-white.text-black svg {
-  color: #FFFFFF !important;
-}
-
-/* Secondary CTA on Hero */
-html.light a.bg-\[\#18181C\] {
-  background-color: #FFFFFF !important;
-  color: #111827 !important;
-  border-color: rgba(201, 162, 74, 0.5) !important;
-}
-
-/* Modals & Backdrop */
-html.light dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-/* Form inputs & selects */
-html.light input:not([type="checkbox"]):not([type="radio"]),
-html.light textarea,
-html.light select {
-  background-color: #FFFFFF !important;
-  color: #111827 !important;
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
-
-html.light input::placeholder,
-html.light textarea::placeholder {
-  color: #9CA3AF !important;
-}
-
-/* Scrollbar in Light Mode */
-html.light ::-webkit-scrollbar-track {
-  background: #F4F4F6;
-}
-html.light ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
-}
-html.light ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
-}
-
-/* Hover effects */
-html.light .hover\:bg-neutral-800:hover,
-html.light .hover\:bg-\[\#24242A\]:hover {
-  background-color: #E5E7EB !important;
+/* ==========================================================
+   Admin panel only. The admin screens are a dark-only tool and
+   still use their original hard-coded classes; this keeps them
+   readable now that the site-wide light overrides are gone.
+   ========================================================== */
+.admin-scope {
+  color-scheme: dark;
+  background: #0a0a0a;
+  color: #fff;
 }
