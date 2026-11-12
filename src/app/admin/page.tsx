@@ -56,13 +56,13 @@ export default function AdminPage() {
   // If not authenticated, render Login Screen
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex flex-col justify-center items-center p-4 sm:p-6">
+      <div className="admin-scope min-h-screen bg-[#0A0A0A] flex flex-col justify-center items-center p-4 sm:p-6">
         <div className="w-full max-w-md bg-[#121215] border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl relative space-y-6">
           {/* Logo */}
           <div className="text-center space-y-3">
             <div className="relative h-20 w-44 mx-auto rounded-lg overflow-hidden bg-white p-2">
               <Image
-                src="/brand/horizontal.jpeg"
+                src="/brand/logo-horizontal.jpg"
                 alt="Vishal Apple Store"
                 fill
                 priority
@@ -155,14 +155,14 @@ export default function AdminPage() {
   const unreadEnquiriesCount = enquiries.filter((e) => e.status === 'New').length;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="admin-scope min-h-screen bg-[#0A0A0A] text-white">
       {/* Top Admin Header Bar */}
       <header className="sticky top-0 z-30 bg-[#0E0E12]/95 backdrop-blur-xl border-b border-white/[0.08]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/admin" className="relative h-8 w-36 overflow-hidden rounded bg-white p-1">
               <Image
-                src="/brand/horizontal.jpeg"
+                src="/brand/logo-horizontal.jpg"
                 alt="Vishal Apple Store"
                 fill
                 className="object-contain"

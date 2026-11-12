@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import ProductImage from '@/components/ui/ProductImage';
 import { useStore } from '@/context/StoreContext';
 import { Product, Category, Condition, ProductVariant } from '@/types';
 import { formatINR } from '@/lib/utils';
@@ -32,7 +32,7 @@ export default function AdminProducts() {
   const [condition, setCondition] = useState<Condition>('New');
   const [tagline, setTagline] = useState('');
   const [description, setDescription] = useState('');
-  const [imagePath, setImagePath] = useState('/devices/iphone-16-pro-natural.png');
+  const [imagePath, setImagePath] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [batteryHealth, setBatteryHealth] = useState<number>(100);
@@ -65,7 +65,7 @@ export default function AdminProducts() {
     setCondition('New');
     setTagline('Pure titanium craftsmanship.');
     setDescription('Carefully inspected and certified for premium retail standards.');
-    setImagePath('/devices/iphone-16-pro-natural.png');
+    setImagePath('');
     setIsFeatured(false);
     setIsVisible(true);
     setBatteryHealth(100);
@@ -96,7 +96,7 @@ export default function AdminProducts() {
     setCondition(p.condition);
     setTagline(p.tagline);
     setDescription(p.description);
-    setImagePath(p.images[0] || '/devices/iphone-16-pro-natural.png');
+    setImagePath(p.images[0]?.startsWith('/devices/') ? '' : p.images[0] || '');
     setIsFeatured(p.isFeatured);
     setIsVisible(p.isVisible);
     setBatteryHealth(p.gradingReport?.batteryHealth || 100);
@@ -161,7 +161,7 @@ export default function AdminProducts() {
       deviceModel: name,
       tagline,
       description,
-      images: [imagePath],
+      images: imagePath.trim() ? [imagePath.trim()] : [],
       variants,
       specs: {
         chip,
@@ -312,13 +312,8 @@ export default function AdminProducts() {
                 </div>
 
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="relative w-14 h-14 bg-neutral-900 rounded-lg p-1 shrink-0">
-                    <Image
-                      src={prod.images[0] || '/devices/iphone-16-pro-natural.png'}
-                      alt={prod.name}
-                      fill
-                      className="object-contain"
-                    />
+                  <div className="w-14 shrink-0">
+                    <ProductImage product={prod} labelled={false} sizes="56px" rounded="rounded-lg" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-white line-clamp-1">{prod.name}</h3>
@@ -464,44 +459,22 @@ export default function AdminProducts() {
                 />
               </div>
 
-              {/* Device Graphic Selector */}
+              {/* Product photo (optional). Without one, the storefront draws a neutral illustration in the variant colour. */}
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 mb-1">
-                  Product Image (Official Apple Render)
+                <label htmlFor="admin-photo-url" className="block text-xs font-semibold text-neutral-300 mb-1">
+                  Product photo URL (optional)
                 </label>
-                <select
+                <input
+                  id="admin-photo-url"
+                  type="text"
                   value={imagePath}
                   onChange={(e) => setImagePath(e.target.value)}
+                  placeholder="/uploads/iphone-15-pro-front.jpg or https://…"
                   className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-white/10 text-white text-xs focus:border-[#C9A24A] focus:outline-none"
-                >
-                  <option value="/devices/iphone-16-pro-natural.png">iPhone 16 Pro (Natural Titanium)</option>
-                  <option value="/devices/iphone-16-pro-black.png">iPhone 16 Pro (Black Titanium)</option>
-                  <option value="/devices/iphone-16-pro-desert.png">iPhone 16 Pro (Desert Titanium)</option>
-                  <option value="/devices/iphone-16-pro-white.png">iPhone 16 Pro (White Titanium)</option>
-                  <option value="/devices/iphone-16-teal.png">iPhone 16 (Teal)</option>
-                  <option value="/devices/iphone-16-black.png">iPhone 16 (Black)</option>
-                  <option value="/devices/iphone-16-pink.png">iPhone 16 (Pink)</option>
-                  <option value="/devices/iphone-15-pro-natural.png">iPhone 15 Pro (Natural Titanium)</option>
-                  <option value="/devices/iphone-15-pro-blue.png">iPhone 15 Pro (Blue Titanium)</option>
-                  <option value="/devices/iphone-15-blue.png">iPhone 15 (Blue)</option>
-                  <option value="/devices/iphone-14-midnight.png">iPhone 14 (Midnight)</option>
-                  <option value="/devices/macbook-pro-14.png">MacBook Pro 14 (Space Black)</option>
-                  <option value="/devices/macbook-pro-16.png">MacBook Pro 16 (Space Black)</option>
-                  <option value="/devices/macbook-air-15.png">MacBook Air 15 (Midnight)</option>
-                  <option value="/devices/macbook-air-13.png">MacBook Air 13 (Space Gray)</option>
-                  <option value="/devices/ipad-pro-13.png">iPad Pro 13 M4 (Space Black)</option>
-                  <option value="/devices/ipad-air-11.png">iPad Air 11 (Blue)</option>
-                  <option value="/devices/ipad-10th-gen.png">iPad 10th Gen (Silver)</option>
-                  <option value="/devices/airpods-pro-2.png">AirPods Pro 2</option>
-                  <option value="/devices/airpods-max.png">AirPods Max (Midnight)</option>
-                  <option value="/devices/airpods-4.png">AirPods 4 ANC</option>
-                  <option value="/devices/watch-ultra-2.png">Apple Watch Ultra 2</option>
-                  <option value="/devices/watch-series-10.png">Apple Watch Series 10 (Jet Black)</option>
-                  <option value="/devices/watch-se-2.png">Apple Watch SE 2 (Midnight)</option>
-                  <option value="/devices/magsafe-charger.png">MagSafe Charger</option>
-                  <option value="/devices/power-adapter.png">35W Dual USB-C Power Adapter</option>
-                  <option value="/devices/apple-pencil-pro.png">Apple Pencil Pro</option>
-                </select>
+                />
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  Use your own photo of the unit (square, plain background). Leave empty to show the drawn illustration in the selected colour.
+                </p>
               </div>
 
               {/* Variants Section */}
