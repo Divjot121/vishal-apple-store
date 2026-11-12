@@ -148,6 +148,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
           <div className="relative">
             <ProductImage
               product={product}
+              colour={currentVariant?.colour}
               finish={currentVariant?.colorHex}
               priority
               rounded="rounded-card"
@@ -190,7 +191,14 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         key={s}
                         type="button"
                         aria-pressed={currentStorage === s}
-                        onClick={() => setSelectedStorage(s)}
+                        onClick={() => {
+                          setSelectedStorage(s);
+                          // keep the colour if this storage comes in it, else switch to one that exists
+                          if (!product.variants.some((x) => x.storage === s && x.colour === currentColour)) {
+                            const v2 = product.variants.find((x) => x.storage === s);
+                            if (v2) setSelectedColour(v2.colour);
+                          }
+                        }}
                         className={cn(
                           'min-h-[52px] rounded-control border px-3 py-2 text-left transition-colors',
                           currentStorage === s ? 'border-ink bg-surface ring-1 ring-ink' : 'border-line hover:border-line-strong'
@@ -218,7 +226,14 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         key={c}
                         type="button"
                         aria-pressed={currentColour === c}
-                        onClick={() => setSelectedColour(c)}
+                        onClick={() => {
+                          setSelectedColour(c);
+                          // keep the storage if it exists in this colour, else switch to one that does
+                          if (!product.variants.some((x) => x.colour === c && x.storage === currentStorage)) {
+                            const v2 = product.variants.find((x) => x.colour === c);
+                            if (v2) setSelectedStorage(v2.storage);
+                          }
+                        }}
                         className="chip"
                       >
                         <span className="h-4 w-4 shrink-0 rounded-full border border-line-strong" style={{ backgroundColor: hex }} aria-hidden />
